@@ -10,7 +10,8 @@
       "Bash(rm:*)",
       "Bash(docker-compose logs:*)",
       "Bash(ls:*)",
-      "Bash(docker system prune:*)"
+      "Bash(docker system prune:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
