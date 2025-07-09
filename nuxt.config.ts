@@ -11,6 +11,12 @@ export default defineNuxtConfig({
     strict: true
   },
 
+  // 開発サーバー設定
+  devServer: {
+    port: 3000,
+    host: '0.0.0.0'
+  },
+
   // 環境変数の設定
   runtimeConfig: {
     // サーバーサイドのみで利用可能

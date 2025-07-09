@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Nuxt.js アプリケーション
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.nuxt
+      - /app/.output
+    environment:
+      - NODE_ENV=development
+      - NUXT_PUBLIC_API_BASE=/api
+      - S3_ENDPOINT=http://minio:9000
+      - S3_ACCESS_KEY=minioadmin
+      - S3_SECRET_KEY=minioadmin
+      - S3_BUCKET=appointy
+      - R2_PUBLIC_URL=http://localhost:9001/appointy
+    depends_on:
+      - minio
+    networks:
+      - appointy-network
+
+  # MinIO (R2の代替)
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - appointy-network
+
+  # MinIO初期設定用コンテナ
+  createbuckets:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb myminio/appointy;
+      /usr/bin/mc policy set public myminio/appointy;
+      exit 0;
+      "
+    networks:
+      - appointy-network
+
+volumes:
+  minio_data:
+
+networks:
+  appointy-network:
+    driver: bridge

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(lsof:*)",
+      "Bash(sudo chown:*)",
+      "Bash(rm:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(ls:*)",
+      "Bash(docker system prune:*)"
+    ],
+    "deny": []
+  }
+}

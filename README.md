@@ -1,39 +1,66 @@
-# appointy
-小規模な店舗や個人事業主（例：サロン、コンサルタント、個人レッスン講師）が、自身のサービスと予約可能時間を設定し、顧客がオンラインで簡単に予約できるシステム
+# Appointy - 予約管理システム
+
+小規模な店舗や個人事業主向けの予約管理システムです。顧客がオンラインで簡単に予約でき、オーナーが効率的に予約を管理できます。
 
 ## 技術スタック
 
 - **フレームワーク**: Nuxt 3
-- **実行環境**: 
-  - フロントエンド: Cloudflare Pages
-  - バックエンドAPI: Cloudflare Workers
-- **データベース**: Cloudflare D1
-- **ファイルストレージ**: Cloudflare R2
-- **スタイリング**: TailwindCSS
+- **データベース**: SQLite (開発環境) / Cloudflare D1 (本番環境)
+- **ストレージ**: MinIO (開発環境) / Cloudflare R2 (本番環境)
+- **認証**: JWT + bcryptjs
+- **スタイリング**: Tailwind CSS
+- **開発環境**: Docker + DevContainer
 
 ## 開発環境のセットアップ
 
-### 前提条件
-- Docker と Docker Compose がインストールされていること
+### 1. DevContainer を使用する場合（推奨）
 
-### セットアップ手順
+1. VS Code で DevContainer 拡張機能をインストール
+2. プロジェクトフォルダを開く
+3. コマンドパレットで「Dev Containers: Reopen in Container」を実行
 
-1. リポジトリをクローン
+### 2. Docker Compose を使用する場合
+
 ```bash
-git clone https://github.com/ProgrammerForCat/appointy.git
+# プロジェクトクローン
+git clone <repository-url>
 cd appointy
+
+# Docker Compose で起動
+docker-compose up -d
+
+# ログを確認
+docker-compose logs -f app
 ```
 
-2. Docker環境を起動
+### 3. ローカル開発する場合
+
 ```bash
-docker compose up -d
+# 依存関係をインストール
+npm install
+
+# 開発サーバーを起動
+npm run dev
 ```
 
-3. アプリケーションにアクセス
-- Nuxt3アプリ: http://localhost:3000
-- MinIO管理画面: http://localhost:9001
-  - ユーザー名: minioadmin
-  - パスワード: minioadmin
+## アクセス先
+
+- **アプリケーション**: http://localhost:3000
+- **MinIO Console**: http://localhost:9001 (minioadmin/minioadmin)
+- **MinIO API**: http://localhost:9000
+
+## サンプルデータ
+
+初回起動時に以下のサンプルデータが自動で作成されます：
+
+### オーナーアカウント
+- **メール**: owner@example.com
+- **パスワード**: password123
+
+### サンプルサービス
+- 60分カウンセリング (¥5,000)
+- 90分カウンセリング (¥7,500)
+- 初回相談30分 (¥3,000)
 
 ## 開発コマンド
 
