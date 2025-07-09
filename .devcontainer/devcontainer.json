@@ -1,0 +1,40 @@
+{
+  "name": "Appointy Development",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  
+  // ポート設定
+  "forwardPorts": [3000, 9000, 9001],
+  
+  // 拡張機能の自動インストール
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Vue.volar",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "mhutchie.git-graph",
+        "eamodio.gitlens",
+        "ms-azuretools.vscode-docker",
+        "EditorConfig.EditorConfig"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "eslint.validate": [
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact",
+          "vue"
+        ],
+        "typescript.tsdk": "node_modules/typescript/lib"
+      }
+    }
+  },
+  
+  // 開発コンテナ起動時のコマンド
+  "postCreateCommand": "npm install"
+}

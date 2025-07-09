@@ -26,5 +26,15 @@ logs
 # Docker volumes
 minio_data/
 
+# SQLite database
+data/
+
 # Claude settings
 .claude/
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
