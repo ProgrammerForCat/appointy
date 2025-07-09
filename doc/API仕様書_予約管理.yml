@@ -1,0 +1,162 @@
+openapi: 3.0.0
+info:
+  title: Appointy 予約管理API
+  version: 1.0.0
+  description: 予約管理に関するAPI仕様
+
+servers:
+  - url: /api/owner
+    description: 店舗オーナー向け予約API
+
+paths:
+  /reservations:
+    get:
+      summary: 予約一覧取得（店舗オーナー用）
+      description: 店舗オーナーが全ての予約を取得する
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+            example: 2024-01-01
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+            example: 2024-01-31
+      responses:
+        200:
+          description: 予約一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reservations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Reservation'
+
+  /reservations/{reservationId}:
+    get:
+      summary: 予約詳細取得
+      description: 予約の詳細情報を取得する
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reservationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: 予約詳細取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDetail'
+        404:
+          description: 予約が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: 予約キャンセル（店舗オーナー用）
+      description: 店舗オーナーが予約をキャンセルする
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reservationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        204:
+          description: 予約キャンセル成功
+        404:
+          description: 予約が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        serviceId:
+          type: integer
+          example: 1
+        customerName:
+          type: string
+          example: 山田花子
+        customerEmail:
+          type: string
+          example: customer@example.com
+        startTime:
+          type: string
+          format: date-time
+          example: 2024-01-15T10:00:00Z
+        endTime:
+          type: string
+          format: date-time
+          example: 2024-01-15T11:00:00Z
+        status:
+          type: string
+          enum: [confirmed, cancelled]
+          example: confirmed
+        createdAt:
+          type: string
+          format: date-time
+          example: 2024-01-01T00:00:00Z
+
+    ReservationDetail:
+      allOf:
+        - $ref: '#/components/schemas/Reservation'
+        - type: object
+          properties:
+            service:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: 60分カウンセリング
+                durationMinutes:
+                  type: integer
+                  example: 60
+                price:
+                  type: integer
+                  example: 5000
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: 予約が見つかりません
+        code:
+          type: string
+          example: NOT_FOUND
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

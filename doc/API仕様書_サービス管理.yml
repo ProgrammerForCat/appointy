@@ -1,0 +1,217 @@
+openapi: 3.0.0
+info:
+  title: Appointy サービス管理API
+  version: 1.0.0
+  description: サービス管理に関するAPI仕様
+
+servers:
+  - url: /api/owner
+    description: 店舗オーナーAPI
+
+paths:
+  /services:
+    get:
+      summary: サービス一覧取得
+      description: 登録されているサービスの一覧を取得する
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: サービス一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Service'
+
+    post:
+      summary: サービス新規作成
+      description: 新しいサービスを作成する
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - durationMinutes
+                - price
+              properties:
+                name:
+                  type: string
+                  example: 60分カウンセリング
+                durationMinutes:
+                  type: integer
+                  example: 60
+                price:
+                  type: integer
+                  example: 5000
+                isActive:
+                  type: boolean
+                  example: true
+      responses:
+        201:
+          description: サービス作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        400:
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /services/{serviceId}:
+    get:
+      summary: サービス詳細取得
+      description: 指定されたサービスの詳細を取得する
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: サービス詳細取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        404:
+          description: サービスが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: サービス更新
+      description: サービス情報を更新する
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - durationMinutes
+                - price
+              properties:
+                name:
+                  type: string
+                  example: 90分カウンセリング
+                durationMinutes:
+                  type: integer
+                  example: 90
+                price:
+                  type: integer
+                  example: 7500
+                isActive:
+                  type: boolean
+                  example: true
+      responses:
+        200:
+          description: サービス更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        404:
+          description: サービスが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: サービス削除
+      description: サービスを削除する
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        204:
+          description: サービス削除成功
+        404:
+          description: サービスが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Service:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          example: 60分カウンセリング
+        durationMinutes:
+          type: integer
+          example: 60
+        price:
+          type: integer
+          example: 5000
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          example: 2024-01-01T00:00:00Z
+        updatedAt:
+          type: string
+          format: date-time
+          example: 2024-01-01T00:00:00Z
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: サービスが見つかりません
+        code:
+          type: string
+          example: NOT_FOUND
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

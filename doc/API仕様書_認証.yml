@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  title: Appointy 認証API
+  version: 1.0.0
+  description: 店舗オーナー認証に関するAPI仕様
+
+servers:
+  - url: /api/auth
+    description: 認証API
+
+paths:
+  /login:
+    post:
+      summary: ログイン
+      description: メールアドレスとパスワードでログインする
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: owner@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        200:
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 550e8400-e29b-41d4-a716-446655440000
+                      name:
+                        type: string
+                        example: 田中太郎
+                      email:
+                        type: string
+                        example: owner@example.com
+                  token:
+                    type: string
+                    description: JWTトークン
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: auth-token=xxx; HttpOnly; Secure; SameSite=Strict
+        401:
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /logout:
+    post:
+      summary: ログアウト
+      description: 現在のセッションをログアウトする
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: ログアウト成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: ログアウトしました
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: auth-token=; Max-Age=0; HttpOnly; Secure; SameSite=Strict
+
+  /me:
+    get:
+      summary: 現在のユーザー情報取得
+      description: ログイン中のユーザー情報を取得する
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: ユーザー情報取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 550e8400-e29b-41d4-a716-446655440000
+                  name:
+                    type: string
+                    example: 田中太郎
+                  email:
+                    type: string
+                    example: owner@example.com
+                  profileImageUrl:
+                    type: string
+                    nullable: true
+                    example: https://r2.example.com/user-550e8400.jpg
+        401:
+          description: 未認証
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: 認証に失敗しました
+        code:
+          type: string
+          example: UNAUTHORIZED
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

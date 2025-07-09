@@ -1,0 +1,262 @@
+openapi: 3.0.0
+info:
+  title: Appointy 公開API
+  version: 1.0.0
+  description: 顧客向け公開API仕様（認証不要）
+
+servers:
+  - url: /api/public
+    description: 公開API
+
+paths:
+  /profile:
+    get:
+      summary: 店舗プロフィール取得
+      description: 店舗の公開プロフィール情報を取得する（認証不要）
+      responses:
+        200:
+          description: プロフィール取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: 田中太郎カウンセリングルーム
+                  description:
+                    type: string
+                    example: 10年以上の経験を持つカウンセラーです
+                  profileImageUrl:
+                    type: string
+                    nullable: true
+                    example: https://r2.example.com/user-550e8400.jpg
+                  businessHours:
+                    type: object
+                    properties:
+                      monday:
+                        $ref: '#/components/schemas/BusinessHour'
+                      tuesday:
+                        $ref: '#/components/schemas/BusinessHour'
+                      wednesday:
+                        $ref: '#/components/schemas/BusinessHour'
+                      thursday:
+                        $ref: '#/components/schemas/BusinessHour'
+                      friday:
+                        $ref: '#/components/schemas/BusinessHour'
+                      saturday:
+                        $ref: '#/components/schemas/BusinessHour'
+                      sunday:
+                        $ref: '#/components/schemas/BusinessHour'
+
+  /services:
+    get:
+      summary: サービス一覧取得
+      description: 利用可能なサービス一覧を取得する（認証不要）
+      responses:
+        200:
+          description: サービス一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  services:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        name:
+                          type: string
+                          example: 60分カウンセリング
+                        durationMinutes:
+                          type: integer
+                          example: 60
+                        price:
+                          type: integer
+                          example: 5000
+
+  /services/{serviceId}:
+    get:
+      summary: サービス詳細取得
+      description: 指定されたサービスの詳細を取得する（認証不要）
+      parameters:
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: サービス詳細取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: 60分カウンセリング
+                  durationMinutes:
+                    type: integer
+                    example: 60
+                  price:
+                    type: integer
+                    example: 5000
+        404:
+          description: サービスが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /available-slots:
+    get:
+      summary: 予約可能時間枠取得
+      description: 指定されたサービスと日付の予約可能時間を取得する（認証不要）
+      parameters:
+        - name: serviceId
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2024-01-15
+      responses:
+        200:
+          description: 予約可能時間取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slots:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        startTime:
+                          type: string
+                          format: date-time
+                          example: 2024-01-15T10:00:00Z
+                        endTime:
+                          type: string
+                          format: date-time
+                          example: 2024-01-15T11:00:00Z
+                        available:
+                          type: boolean
+                          example: true
+
+  /reservations:
+    post:
+      summary: 予約作成
+      description: 新規予約を作成する（認証不要）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - serviceId
+                - customerName
+                - customerEmail
+                - startTime
+              properties:
+                serviceId:
+                  type: integer
+                  example: 1
+                customerName:
+                  type: string
+                  example: 山田花子
+                customerEmail:
+                  type: string
+                  format: email
+                  example: customer@example.com
+                startTime:
+                  type: string
+                  format: date-time
+                  example: 2024-01-15T10:00:00Z
+      responses:
+        201:
+          description: 予約作成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  serviceId:
+                    type: integer
+                    example: 1
+                  customerName:
+                    type: string
+                    example: 山田花子
+                  customerEmail:
+                    type: string
+                    example: customer@example.com
+                  startTime:
+                    type: string
+                    format: date-time
+                    example: 2024-01-15T10:00:00Z
+                  endTime:
+                    type: string
+                    format: date-time
+                    example: 2024-01-15T11:00:00Z
+                  message:
+                    type: string
+                    example: 予約が完了しました
+        400:
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        409:
+          description: 予約時間が重複
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    BusinessHour:
+      type: object
+      properties:
+        isOpen:
+          type: boolean
+          example: true
+        openTime:
+          type: string
+          format: time
+          example: "09:00"
+        closeTime:
+          type: string
+          format: time
+          example: "18:00"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: エラーが発生しました
+        code:
+          type: string
+          example: VALIDATION_ERROR

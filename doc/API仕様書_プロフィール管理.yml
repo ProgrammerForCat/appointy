@@ -1,0 +1,244 @@
+openapi: 3.0.0
+info:
+  title: Appointy プロフィール管理API
+  version: 1.0.0
+  description: プロフィール管理に関するAPI仕様
+
+servers:
+  - url: /api/owner
+    description: 店舗オーナーAPI
+
+paths:
+  /profile:
+    get:
+      summary: プロフィール取得
+      description: 店舗オーナーのプロフィール情報を取得する
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: プロフィール取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+
+    put:
+      summary: プロフィール更新
+      description: 店舗オーナーのプロフィール情報を更新する
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 田中太郎
+                description:
+                  type: string
+                  example: 10年以上の経験を持つカウンセラーです
+                businessHours:
+                  type: object
+                  properties:
+                    monday:
+                      $ref: '#/components/schemas/BusinessHour'
+                    tuesday:
+                      $ref: '#/components/schemas/BusinessHour'
+                    wednesday:
+                      $ref: '#/components/schemas/BusinessHour'
+                    thursday:
+                      $ref: '#/components/schemas/BusinessHour'
+                    friday:
+                      $ref: '#/components/schemas/BusinessHour'
+                    saturday:
+                      $ref: '#/components/schemas/BusinessHour'
+                    sunday:
+                      $ref: '#/components/schemas/BusinessHour'
+                  example:
+                    monday:
+                      isOpen: true
+                      openTime: "09:00"
+                      closeTime: "18:00"
+                    tuesday:
+                      isOpen: true
+                      openTime: "09:00"
+                      closeTime: "18:00"
+                    wednesday:
+                      isOpen: true
+                      openTime: "09:00"
+                      closeTime: "18:00"
+                    thursday:
+                      isOpen: true
+                      openTime: "09:00"
+                      closeTime: "18:00"
+                    friday:
+                      isOpen: true
+                      openTime: "09:00"
+                      closeTime: "18:00"
+                    saturday:
+                      isOpen: false
+                      openTime: null
+                      closeTime: null
+                    sunday:
+                      isOpen: false
+                      openTime: null
+                      closeTime: null
+      responses:
+        200:
+          description: プロフィール更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+
+  /profile/image:
+    post:
+      summary: プロフィール画像アップロードURL取得
+      description: プロフィール画像をアップロードするための署名付きURLを取得する
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - contentType
+              properties:
+                contentType:
+                  type: string
+                  example: image/jpeg
+                  enum:
+                    - image/jpeg
+                    - image/png
+                    - image/webp
+      responses:
+        200:
+          description: アップロードURL取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uploadUrl:
+                    type: string
+                    example: https://r2.example.com/presigned-upload-url
+                  imageKey:
+                    type: string
+                    example: user-550e8400-e29b-41d4-a716-446655440000.jpg
+
+    put:
+      summary: プロフィール画像登録
+      description: アップロード完了後、画像キーをプロフィールに登録する
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - imageKey
+              properties:
+                imageKey:
+                  type: string
+                  example: user-550e8400-e29b-41d4-a716-446655440000.jpg
+      responses:
+        200:
+          description: プロフィール画像登録成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  profileImageUrl:
+                    type: string
+                    example: https://r2.example.com/user-550e8400-e29b-41d4-a716-446655440000.jpg
+
+    delete:
+      summary: プロフィール画像削除
+      description: プロフィール画像を削除する
+      security:
+        - bearerAuth: []
+      responses:
+        204:
+          description: プロフィール画像削除成功
+
+components:
+  schemas:
+    Profile:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          example: 田中太郎
+        email:
+          type: string
+          example: owner@example.com
+        description:
+          type: string
+          nullable: true
+          example: 10年以上の経験を持つカウンセラーです
+        profileImageUrl:
+          type: string
+          nullable: true
+          example: https://r2.example.com/user-550e8400.jpg
+        businessHours:
+          type: object
+          properties:
+            monday:
+              $ref: '#/components/schemas/BusinessHour'
+            tuesday:
+              $ref: '#/components/schemas/BusinessHour'
+            wednesday:
+              $ref: '#/components/schemas/BusinessHour'
+            thursday:
+              $ref: '#/components/schemas/BusinessHour'
+            friday:
+              $ref: '#/components/schemas/BusinessHour'
+            saturday:
+              $ref: '#/components/schemas/BusinessHour'
+            sunday:
+              $ref: '#/components/schemas/BusinessHour'
+
+    BusinessHour:
+      type: object
+      properties:
+        isOpen:
+          type: boolean
+          example: true
+        openTime:
+          type: string
+          format: time
+          nullable: true
+          example: "09:00"
+        closeTime:
+          type: string
+          format: time
+          nullable: true
+          example: "18:00"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: エラーが発生しました
+        code:
+          type: string
+          example: INTERNAL_ERROR
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
