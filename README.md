@@ -13,27 +13,21 @@
 
 ## 開発環境のセットアップ
 
-### 1. DevContainer を使用する場合（推奨）
-
-1. VS Code で DevContainer 拡張機能をインストール
-2. プロジェクトフォルダを開く
-3. コマンドパレットで「Dev Containers: Reopen in Container」を実行
-
-### 2. Docker Compose を使用する場合
+### Docker Compose を使用する場合（推奨）
 
 ```bash
 # プロジェクトクローン
 git clone <repository-url>
 cd appointy
 
-# Docker Compose で起動
+# Docker Compose で起動（自動で開発サーバーも起動）
 docker-compose up -d
 
 # ログを確認
 docker-compose logs -f app
 ```
 
-### 3. ローカル開発する場合
+### ローカル開発する場合
 
 ```bash
 # 依存関係をインストール

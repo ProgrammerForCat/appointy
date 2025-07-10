@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Nuxt.js アプリケーション
   app:

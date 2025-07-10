@@ -11,7 +11,10 @@
       "Bash(docker-compose logs:*)",
       "Bash(ls:*)",
       "Bash(docker system prune:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(docker-compose exec app netstat:*)",
+      "Bash(docker-compose exec:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }
