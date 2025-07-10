@@ -128,7 +128,7 @@ onMounted(async () => {
     const serviceResponse = await $fetch('/api/owner/services')
     services.value = serviceResponse.services
   } catch (error) {
-    console.error('データ取得エラー:', error)
+    // データ取得エラー時は何もしない
   }
 })
 </script>

@@ -10,6 +10,9 @@
             </NuxtLink>
           </div>
           <nav class="flex space-x-4">
+            <NuxtLink to="/booking" class="text-gray-600 hover:text-gray-900">
+              予約する
+            </NuxtLink>
             <NuxtLink to="/owner/login" class="text-gray-600 hover:text-gray-900">
               オーナーログイン
             </NuxtLink>

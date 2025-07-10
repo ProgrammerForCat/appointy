@@ -16,10 +16,16 @@ export const ServiceSchema = z.object({
 
 // 予約用のバリデーション
 export const ReservationSchema = z.object({
-  service_id: z.number().min(1, 'サービスIDは必須です'),
+  service_id: z.union([
+    z.number(),
+    z.string().transform((val) => parseInt(val, 10))
+  ]).refine((val) => !isNaN(val) && val > 0, 'サービスIDは必須です'),
   customer_name: z.string().min(1, '顧客名は必須です'),
   customer_email: z.string().email('有効なメールアドレスを入力してください'),
-  start_time: z.string().datetime('有効な日時を入力してください')
+  start_time: z.string().refine((val) => {
+    const date = new Date(val)
+    return !isNaN(date.getTime())
+  }, '有効な日時を入力してください')
 })
 
 // プロフィール用のバリデーション
