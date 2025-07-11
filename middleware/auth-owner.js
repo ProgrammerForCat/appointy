@@ -1,12 +1,13 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  // サーバーサイドでのみ実行
-  if (process.server) {
+  // クライアントサイドでのみ認証チェック
+  if (process.client) {
     try {
-      // 認証状態をチェック
-      await $fetch('/api/auth/me')
+      await $fetch('/api/auth/me', {
+        credentials: 'include'
+      })
     } catch (error) {
-      // 認証に失敗した場合、ログインページにリダイレクト
-      return navigateTo('/owner/login')
+      const redirectPath = to.fullPath
+      return navigateTo(`/owner/login?redirect=${encodeURIComponent(redirectPath)}`)
     }
   }
 })

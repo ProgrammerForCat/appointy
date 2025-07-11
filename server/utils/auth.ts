@@ -51,7 +51,8 @@ export function getTokenFromCookie(cookieHeader: string | undefined): string | n
 
 // 認証用のミドルウェア
 export async function requireAuth(event: any): Promise<JWTPayload | null> {
-  const token = getTokenFromCookie(event.node.req.headers.cookie)
+  // getCookieヘルパーを使用
+  const token = getCookie(event, 'auth-token')
   
   if (!token) {
     return null

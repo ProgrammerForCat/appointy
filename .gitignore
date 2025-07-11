@@ -7,6 +7,7 @@ node_modules
 
 # Local development
 /.nuxt
+/.nitro
 
 # Environment variables
 .env
@@ -16,9 +17,18 @@ node_modules
 # Database
 data/
 *.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+database.sqlite
 
 # Uploads
 public/uploads/
+
+# MinIO data
+minio_data/
 
 # Logs
 *.log

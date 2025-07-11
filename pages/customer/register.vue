@@ -1,5 +1,6 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <NuxtLayout name="blank">
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -107,13 +108,12 @@
         </div>
       </form>
     </div>
-  </div>
+    </div>
+  </NuxtLayout>
 </template>
 
 <script setup>
-definePageMeta({
-  layout: false
-})
+// definePageMetaを削除（blankレイアウトを使用）
 
 // データの定義
 const name = ref('')

@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
       email: user.email,
       description: user.description,
       profileImageUrl: user.profile_image_key 
-        ? `${process.env.R2_PUBLIC_URL || '/uploads'}/${user.profile_image_key}`
+        ? `${process.env.R2_PUBLIC_URL || 'http://localhost:9000/appointy'}/${user.profile_image_key}`
         : null,
       businessHours
     }
