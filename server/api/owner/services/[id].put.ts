@@ -1,7 +1,7 @@
 import { requireAuth } from '~/server/utils/auth'
 import { ServiceSchema } from '~/server/utils/validation'
 import { execute, queryOne } from '~/server/database'
-import type { Service } from '~/server/utils/types'
+import type { Service, Store } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -11,6 +11,19 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 401,
         statusMessage: '認証が必要です'
+      })
+    }
+    
+    // ユーザーの店舗を取得
+    const store = queryOne(
+      'SELECT id FROM stores WHERE user_id = ?',
+      [authUser.userId]
+    ) as Store | undefined
+    
+    if (!store) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: '店舗が見つかりません'
       })
     }
     
@@ -31,8 +44,8 @@ export default defineEventHandler(async (event) => {
     
     // サービスが存在し、所有者が正しいか確認
     const existingService = queryOne(
-      'SELECT * FROM services WHERE id = ? AND user_id = ?',
-      [serviceId, authUser.userId]
+      'SELECT * FROM services WHERE id = ? AND store_id = ?',
+      [serviceId, store.id]
     ) as Service | undefined
     
     if (!existingService) {
@@ -44,14 +57,14 @@ export default defineEventHandler(async (event) => {
     
     // サービスを更新
     execute(
-      'UPDATE services SET name = ?, duration_minutes = ?, price = ?, is_active = ? WHERE id = ? AND user_id = ?',
-      [name, duration_minutes, price, is_active, serviceId, authUser.userId]
+      'UPDATE services SET name = ?, duration_minutes = ?, price = ?, is_active = ? WHERE id = ? AND store_id = ?',
+      [name, duration_minutes, price, is_active, serviceId, store.id]
     )
     
     // 更新されたサービスを返す
     return {
       id: parseInt(serviceId),
-      userId: authUser.userId,
+      storeId: store.id,
       name,
       durationMinutes: duration_minutes,
       price,

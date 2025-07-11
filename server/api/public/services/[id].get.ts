@@ -7,7 +7,9 @@ export default defineEventHandler(async (event) => {
     
     // サービス詳細を取得
     const service = queryOne(
-      'SELECT * FROM services WHERE id = ? AND is_active = 1',
+      `SELECT s.* FROM services s 
+       JOIN stores st ON s.store_id = st.id 
+       WHERE s.id = ? AND s.is_active = 1`,
       [serviceId]
     ) as Service | undefined
     

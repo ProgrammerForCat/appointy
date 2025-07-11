@@ -1,27 +1,36 @@
-import { ReservationSchema } from '~/server/utils/validation'
+import { requireAuth } from '~/server/utils/auth'
 import { execute, queryOne, query } from '~/server/database'
 import { getBusinessHours, isWithinBusinessHours } from '~/server/utils/business-hours'
-import type { Service, User } from '~/server/utils/types'
+import type { Service, Store } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody(event)
-    
-    // バリデーション
-    const validation = ReservationSchema.safeParse(body)
-    if (!validation.success) {
+    // 認証を確認
+    const authUser = await requireAuth(event)
+    if (!authUser) {
       throw createError({
-        statusCode: 400,
-        statusMessage: 'バリデーションエラー',
-        data: validation.error.issues
+        statusCode: 401,
+        statusMessage: '予約には認証が必要です'
       })
     }
     
-    const { service_id, customer_name, customer_email, start_time } = validation.data
+    const body = await readBody(event)
+    
+    // バリデーション
+    if (!body.service_id || !body.start_time) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'サービスIDと開始時刻は必須です'
+      })
+    }
+    
+    const { service_id, start_time } = body
     
     // サービス情報を取得
     const service = queryOne(
-      'SELECT * FROM services WHERE id = ? AND is_active = 1',
+      `SELECT s.* FROM services s 
+       JOIN stores st ON s.store_id = st.id 
+       WHERE s.id = ? AND s.is_active = 1`,
       [service_id]
     ) as Service | undefined
     
@@ -37,20 +46,20 @@ export default defineEventHandler(async (event) => {
     const endTime = new Date(startTime)
     endTime.setMinutes(startTime.getMinutes() + service.duration_minutes)
     
-    // オーナーの営業時間を取得
-    const owner = queryOne(
-      'SELECT business_hours FROM users WHERE id = ?',
-      [service.user_id]
-    ) as Pick<User, 'business_hours'> | undefined
+    // 店舗の営業時間を取得
+    const store = queryOne(
+      'SELECT business_hours FROM stores WHERE id = ?',
+      [service.store_id]
+    ) as Pick<Store, 'business_hours'> | undefined
     
-    if (!owner) {
+    if (!store) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'オーナーが見つかりません'
+        statusMessage: '店舗が見つかりません'
       })
     }
     
-    const businessHours = getBusinessHours(owner.business_hours)
+    const businessHours = getBusinessHours(store.business_hours)
     if (!businessHours) {
       throw createError({
         statusCode: 400,
@@ -81,8 +90,8 @@ export default defineEventHandler(async (event) => {
     
     // 予約を作成
     const result = execute(
-      'INSERT INTO reservations (service_id, customer_name, customer_email, start_time, end_time) VALUES (?, ?, ?, ?, ?)',
-      [service_id, customer_name, customer_email, startTime.toISOString(), endTime.toISOString()]
+      'INSERT INTO reservations (service_id, customer_id, start_time, end_time) VALUES (?, ?, ?, ?)',
+      [service_id, authUser.userId, startTime.toISOString(), endTime.toISOString()]
     )
     
     // 作成された予約を返す
@@ -90,8 +99,7 @@ export default defineEventHandler(async (event) => {
     return {
       id: result.lastInsertRowid,
       serviceId: service_id,
-      customerName: customer_name,
-      customerEmail: customer_email,
+      customerId: authUser.userId,
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
       message: '予約が完了しました'

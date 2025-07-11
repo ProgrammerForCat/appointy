@@ -6,6 +6,13 @@ export const LoginSchema = z.object({
   password: z.string().min(6, 'パスワードは6文字以上で入力してください')
 })
 
+// 登録用のバリデーション
+export const RegisterSchema = z.object({
+  name: z.string().min(1, '名前は必須です'),
+  email: z.string().email('有効なメールアドレスを入力してください'),
+  password: z.string().min(8, 'パスワードは8文字以上で入力してください')
+})
+
 // サービス用のバリデーション
 export const ServiceSchema = z.object({
   name: z.string().min(1, 'サービス名は必須です'),

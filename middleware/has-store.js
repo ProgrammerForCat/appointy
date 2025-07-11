@@ -11,8 +11,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         return navigateTo('/store/register')
       }
     } catch (error) {
-      const redirectPath = to.fullPath
-      return navigateTo(`/login?redirect=${encodeURIComponent(redirectPath)}`)
+      // 認証エラーの場合はログイン画面へ
+      return navigateTo('/login')
     }
   }
 })

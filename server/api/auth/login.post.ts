@@ -1,7 +1,7 @@
 import { LoginSchema } from '~/server/utils/validation'
 import { queryOne } from '~/server/database'
 import { verifyPassword, generateToken } from '~/server/utils/auth'
-import type { User } from '~/server/utils/types'
+import type { User, Store } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -41,6 +41,12 @@ export default defineEventHandler(async (event) => {
       })
     }
     
+    // 店舗情報を取得（あれば）
+    const store = queryOne(
+      'SELECT * FROM stores WHERE user_id = ?',
+      [user.id]
+    ) as Store | undefined
+    
     // JWTトークンを生成
     const token = generateToken({
       userId: user.id,
@@ -61,9 +67,15 @@ export default defineEventHandler(async (event) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        profileImageUrl: user.profile_image_key 
-          ? `${process.env.R2_PUBLIC_URL || '/uploads'}/${user.profile_image_key}`
-          : null
+        hasStore: !!store,
+        store: store ? {
+          id: store.id,
+          storeName: store.store_name,
+          description: store.description,
+          profileImageUrl: store.profile_image_key 
+            ? `${process.env.R2_PUBLIC_URL || 'http://localhost:9000/appointy'}/${store.profile_image_key}`
+            : null
+        } : null
       },
       token
     }

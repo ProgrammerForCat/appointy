@@ -91,29 +91,14 @@
           </div>
         </div>
 
-        <!-- 顧客情報 -->
-        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">お名前 <span class="text-red-500">*</span></label>
-            <input 
-              v-model="customerName"
-              type="text"
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="山田太郎"
-            >
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">メールアドレス <span class="text-red-500">*</span></label>
-            <input 
-              v-model="customerEmail"
-              type="email"
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="example@example.com"
-            >
-            <p class="mt-1 text-sm text-gray-500">予約確認メールが送信されます</p>
+        <!-- 予約情報確認 -->
+        <div v-if="isAuthenticated && selectedDate && selectedTime" class="mt-6 bg-gray-50 rounded-lg p-4">
+          <h3 class="text-sm font-medium text-gray-700 mb-2">予約内容確認</h3>
+          <div class="space-y-1 text-sm text-gray-600">
+            <p><span class="font-medium">サービス:</span> {{ selectedService.name }}</p>
+            <p><span class="font-medium">日時:</span> {{ selectedDate }} {{ formatTime(selectedTime) }}</p>
+            <p><span class="font-medium">所要時間:</span> {{ selectedService.durationMinutes }}分</p>
+            <p><span class="font-medium">料金:</span> ¥{{ selectedService.price.toLocaleString() }}</p>
           </div>
         </div>
 
@@ -129,7 +114,7 @@
           </button>
           <NuxtLink
             v-else
-            to="/customer/login?redirect=/booking"
+            to="/login?redirect=/booking"
             class="block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
           >
             ログインして予約する
@@ -152,16 +137,13 @@ const selectedService = ref(null)
 const selectedDate = ref('')
 const selectedTime = ref('')
 const availableSlots = ref([])
-const customerName = ref('')
-const customerEmail = ref('')
 
 // 今日の日付を取得
 const today = new Date().toISOString().split('T')[0]
 
 // 計算プロパティ
 const canReserve = computed(() => {
-  return selectedService.value && selectedDate.value && selectedTime.value && 
-         customerName.value && customerEmail.value
+  return selectedService.value && selectedDate.value && selectedTime.value && isAuthenticated.value
 })
 
 // 曜日名を取得
@@ -218,10 +200,9 @@ const createReservation = async () => {
   try {
     const response = await $fetch('/api/public/reservations', {
       method: 'POST',
+      credentials: 'include',
       body: {
         service_id: selectedService.value.id,
-        customer_name: customerName.value,
-        customer_email: customerEmail.value,
         start_time: selectedTime.value
       }
     })
@@ -233,8 +214,6 @@ const createReservation = async () => {
     selectedDate.value = ''
     selectedTime.value = ''
     availableSlots.value = []
-    customerName.value = ''
-    customerEmail.value = ''
   } catch (error) {
     const errorMessage = error.data?.statusMessage || error.message || '予約に失敗しました。もう一度お試しください。'
     alert(errorMessage)

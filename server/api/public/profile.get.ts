@@ -1,15 +1,15 @@
 import { queryOne } from '~/server/database'
-import type { User, BusinessHours } from '~/server/utils/types'
+import type { Store, BusinessHours } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
-    // 最初のユーザーを取得（シングルテナント想定）
-    const user = queryOne(
-      'SELECT * FROM users ORDER BY created_at ASC LIMIT 1',
+    // 最初の店舗を取得（シングルテナント想定）
+    const store = queryOne(
+      'SELECT * FROM stores ORDER BY created_at ASC LIMIT 1',
       []
-    ) as User | undefined
+    ) as Store | undefined
     
-    if (!user) {
+    if (!store) {
       throw createError({
         statusCode: 404,
         statusMessage: '店舗が見つかりません'
@@ -18,9 +18,9 @@ export default defineEventHandler(async (event) => {
     
     // business_hoursをパース
     let businessHours: BusinessHours | undefined
-    if (user.business_hours) {
+    if (store.business_hours) {
       try {
-        businessHours = JSON.parse(user.business_hours)
+        businessHours = JSON.parse(store.business_hours)
       } catch (error) {
         console.error('営業時間のパースエラー:', error)
       }
@@ -28,10 +28,10 @@ export default defineEventHandler(async (event) => {
     
     // レスポンス
     return {
-      name: user.name,
-      description: user.description,
-      profileImageUrl: user.profile_image_key 
-        ? `${process.env.R2_PUBLIC_URL || '/uploads'}/${user.profile_image_key}`
+      name: store.store_name,
+      description: store.description,
+      profileImageUrl: store.profile_image_key 
+        ? `${process.env.R2_PUBLIC_URL || '/uploads'}/${store.profile_image_key}`
         : null,
       businessHours
     }

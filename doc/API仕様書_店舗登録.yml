@@ -1,0 +1,198 @@
+openapi: 3.0.0
+info:
+  title: Appointy 店舗登録API
+  version: 1.0.0
+  description: 店舗登録・管理に関するAPI仕様
+
+servers:
+  - url: /api/store
+    description: 店舗API
+
+paths:
+  /register:
+    post:
+      summary: 店舗登録
+      description: 認証ユーザーが新しい店舗を登録する（1ユーザー1店舗まで）
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - storeName
+              properties:
+                storeName:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  example: 田中カウンセリングルーム
+                description:
+                  type: string
+                  maxLength: 500
+                  example: 心理カウンセリングを専門としています。お気軽にご相談ください。
+                createDefaultServices:
+                  type: boolean
+                  default: true
+                  description: デフォルトサービス（30分、60分、90分相談）を作成するかどうか
+                  example: true
+      responses:
+        201:
+          description: 店舗登録成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  store:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: store-550e8400-e29b-41d4-a716-446655440000
+                      storeName:
+                        type: string
+                        example: 田中カウンセリングルーム
+                      description:
+                        type: string
+                        example: 心理カウンセリングを専門としています。
+                      businessHours:
+                        type: object
+                        description: デフォルトの営業時間（JSON形式）
+                        properties:
+                          monday:
+                            type: object
+                            properties:
+                              isOpen:
+                                type: boolean
+                                example: true
+                              openTime:
+                                type: string
+                                example: "09:00"
+                              closeTime:
+                                type: string
+                                example: "18:00"
+                          tuesday:
+                            type: object
+                            properties:
+                              isOpen:
+                                type: boolean
+                                example: true
+                              openTime:
+                                type: string
+                                example: "09:00"
+                              closeTime:
+                                type: string
+                                example: "18:00"
+                          wednesday:
+                            type: object
+                            properties:
+                              isOpen:
+                                type: boolean
+                                example: true
+                              openTime:
+                                type: string
+                                example: "09:00"
+                              closeTime:
+                                type: string
+                                example: "18:00"
+                          thursday:
+                            type: object
+                            properties:
+                              isOpen:
+                                type: boolean
+                                example: true
+                              openTime:
+                                type: string
+                                example: "09:00"
+                              closeTime:
+                                type: string
+                                example: "18:00"
+                          friday:
+                            type: object
+                            properties:
+                              isOpen:
+                                type: boolean
+                                example: true
+                              openTime:
+                                type: string
+                                example: "09:00"
+                              closeTime:
+                                type: string
+                                example: "18:00"
+                          saturday:
+                            type: object
+                            properties:
+                              isOpen:
+                                type: boolean
+                                example: false
+                              openTime:
+                                type: string
+                                nullable: true
+                                example: null
+                              closeTime:
+                                type: string
+                                nullable: true
+                                example: null
+                          sunday:
+                            type: object
+                            properties:
+                              isOpen:
+                                type: boolean
+                                example: false
+                              openTime:
+                                type: string
+                                nullable: true
+                                example: null
+                              closeTime:
+                                type: string
+                                nullable: true
+                                example: null
+        400:
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        409:
+          description: 既に店舗を登録済み
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 400
+        statusMessage:
+          type: string
+          example: エラーメッセージ
+        data:
+          type: object
+          description: 追加のエラー情報（バリデーションエラーなど）
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: auth-token
+      description: HTTPOnlyクッキーによる認証

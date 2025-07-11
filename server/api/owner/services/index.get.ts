@@ -1,6 +1,6 @@
 import { requireAuth } from '~/server/utils/auth'
-import { query } from '~/server/database'
-import type { Service } from '~/server/utils/types'
+import { query, queryOne } from '~/server/database'
+import type { Service, Store } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -13,17 +13,30 @@ export default defineEventHandler(async (event) => {
       })
     }
     
+    // ユーザーの店舗を取得
+    const store = queryOne(
+      'SELECT id FROM stores WHERE user_id = ?',
+      [authUser.userId]
+    ) as Store | undefined
+    
+    if (!store) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: '店舗が見つかりません'
+      })
+    }
+    
     // サービス一覧を取得
     const services = query(
-      'SELECT * FROM services WHERE user_id = ? ORDER BY created_at DESC',
-      [authUser.userId]
+      'SELECT * FROM services WHERE store_id = ? ORDER BY created_at DESC',
+      [store.id]
     ) as Service[]
     
     // レスポンス
     return {
       services: services.map(service => ({
         id: service.id,
-        userId: service.user_id,
+        storeId: service.store_id,
         name: service.name,
         durationMinutes: service.duration_minutes,
         price: service.price,

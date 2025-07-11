@@ -13,8 +13,8 @@
             <NuxtLink to="/booking" class="text-gray-600 hover:text-gray-900">
               予約する
             </NuxtLink>
-            <NuxtLink to="/owner/login" class="text-gray-600 hover:text-gray-900">
-              オーナーログイン
+            <NuxtLink to="/login" class="text-gray-600 hover:text-gray-900">
+              ログイン
             </NuxtLink>
           </nav>
         </div>

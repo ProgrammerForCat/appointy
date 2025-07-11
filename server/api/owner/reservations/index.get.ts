@@ -1,6 +1,6 @@
 import { requireAuth } from '~/server/utils/auth'
-import { query } from '~/server/database'
-import type { Reservation } from '~/server/utils/types'
+import { query, queryOne } from '~/server/database'
+import type { Reservation, Store } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -10,6 +10,19 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 401,
         statusMessage: '認証が必要です'
+      })
+    }
+    
+    // ユーザーの店舗を取得
+    const store = queryOne(
+      'SELECT id FROM stores WHERE user_id = ?',
+      [authUser.userId]
+    ) as Store | undefined
+    
+    if (!store) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: '店舗が見つかりません'
       })
     }
     
@@ -23,9 +36,9 @@ export default defineEventHandler(async (event) => {
       SELECT r.*, s.name as service_name
       FROM reservations r
       JOIN services s ON r.service_id = s.id
-      WHERE s.user_id = ?
+      WHERE s.store_id = ?
     `
-    const params = [authUser.userId]
+    const params = [store.id]
     
     // 日付フィルター
     if (startDate) {

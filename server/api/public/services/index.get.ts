@@ -3,9 +3,12 @@ import type { Service } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
-    // 有効なサービス一覧を取得
+    // 有効なサービス一覧を取得（最初の店舗のサービス）
     const services = query(
-      'SELECT * FROM services WHERE is_active = 1 ORDER BY created_at ASC',
+      `SELECT s.* FROM services s 
+       JOIN stores st ON s.store_id = st.id 
+       WHERE s.is_active = 1 
+       ORDER BY s.created_at ASC`,
       []
     ) as Service[]
     

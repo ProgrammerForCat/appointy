@@ -1,6 +1,6 @@
 import { requireAuth } from '~/server/utils/auth'
 import { queryOne } from '~/server/database'
-import type { Reservation, Service } from '~/server/utils/types'
+import type { Reservation, Service, Store } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -13,6 +13,19 @@ export default defineEventHandler(async (event) => {
       })
     }
     
+    // ユーザーの店舗を取得
+    const store = queryOne(
+      'SELECT id FROM stores WHERE user_id = ?',
+      [authUser.userId]
+    ) as Store | undefined
+    
+    if (!store) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: '店舗が見つかりません'
+      })
+    }
+    
     const reservationId = getRouterParam(event, 'id')
     
     // 予約詳細を取得
@@ -20,8 +33,8 @@ export default defineEventHandler(async (event) => {
       SELECT r.*, s.name as service_name, s.duration_minutes, s.price
       FROM reservations r
       JOIN services s ON r.service_id = s.id
-      WHERE r.id = ? AND s.user_id = ?
-    `, [reservationId, authUser.userId]) as (Reservation & { 
+      WHERE r.id = ? AND s.store_id = ?
+    `, [reservationId, store.id]) as (Reservation & { 
       service_name: string
       duration_minutes: number
       price: number

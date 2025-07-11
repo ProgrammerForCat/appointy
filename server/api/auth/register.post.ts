@@ -1,20 +1,14 @@
-import { z } from 'zod'
-import bcrypt from 'bcryptjs'
-import { execute, queryOne } from '~/server/database'
-import { generateToken, generateUUID } from '~/server/utils/auth'
-
-const CustomerRegisterSchema = z.object({
-  name: z.string().min(1, '名前は必須です'),
-  email: z.string().email('有効なメールアドレスを入力してください'),
-  password: z.string().min(6, 'パスワードは6文字以上で入力してください')
-})
+import { RegisterSchema } from '~/server/utils/validation'
+import { queryOne, execute } from '~/server/database'
+import { hashPassword, generateToken, generateUUID } from '~/server/utils/auth'
+import type { User } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     
     // バリデーション
-    const validation = CustomerRegisterSchema.safeParse(body)
+    const validation = RegisterSchema.safeParse(body)
     if (!validation.success) {
       throw createError({
         statusCode: 400,
@@ -25,11 +19,11 @@ export default defineEventHandler(async (event) => {
     
     const { name, email, password } = validation.data
     
-    // メールアドレスの重複チェック
+    // 既存ユーザーチェック
     const existingUser = queryOne(
       'SELECT id FROM users WHERE email = ?',
       [email]
-    )
+    ) as User | undefined
     
     if (existingUser) {
       throw createError({
@@ -39,12 +33,13 @@ export default defineEventHandler(async (event) => {
     }
     
     // パスワードをハッシュ化
-    const hashedPassword = await bcrypt.hash(password, 12)
+    const hashedPassword = await hashPassword(password)
     
     // ユーザーを作成
     const userId = generateUUID()
     execute(
-      'INSERT INTO users (id, name, email, hashed_password) VALUES (?, ?, ?, ?)',
+      `INSERT INTO users (id, name, email, hashed_password, created_at, updated_at) 
+       VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))`,
       [userId, name, email, hashedPassword]
     )
     
@@ -54,31 +49,31 @@ export default defineEventHandler(async (event) => {
       email
     })
     
-    // Cookieにトークンを設定
+    // HTTPOnly Cookieにトークンを設定
     setCookie(event, 'auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7 // 7日
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7 // 7日間
     })
     
     // レスポンス
-    setResponseStatus(event, 201)
     return {
-      success: true,
-      message: 'アカウントが作成されました',
       user: {
         id: userId,
         name,
-        email
+        email,
+        hasStore: false,
+        store: null
       }
     }
   } catch (error) {
+    // エラーハンドリング
     if (error.statusCode) {
       throw error
     }
     
-    console.error('カスタマー登録エラー:', error)
+    console.error('ユーザー登録エラー:', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'サーバーエラーが発生しました'

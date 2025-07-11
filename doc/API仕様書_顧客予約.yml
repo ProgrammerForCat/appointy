@@ -1,0 +1,191 @@
+openapi: 3.0.0
+info:
+  title: Appointy 顧客予約API
+  version: 1.0.0
+  description: 顧客向け予約管理に関するAPI仕様
+
+servers:
+  - url: /api/customer
+    description: 顧客API
+
+paths:
+  /reservations:
+    get:
+      summary: 予約履歴取得
+      description: 認証ユーザーの予約履歴を取得する
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: 予約ステータスでフィルタリング
+          required: false
+          schema:
+            type: string
+            enum: [confirmed, cancelled]
+            example: confirmed
+        - name: limit
+          in: query
+          description: 取得件数の上限
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+            example: 20
+        - name: offset
+          in: query
+          description: 取得開始位置
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+      responses:
+        200:
+          description: 予約履歴取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reservations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        serviceId:
+                          type: integer
+                          example: 1
+                        serviceName:
+                          type: string
+                          example: 60分相談
+                        durationMinutes:
+                          type: integer
+                          example: 60
+                        price:
+                          type: integer
+                          example: 5000
+                        storeName:
+                          type: string
+                          example: 田中カウンセリングルーム
+                        storeDescription:
+                          type: string
+                          example: 心理カウンセリングを行っています
+                        startTime:
+                          type: string
+                          format: date-time
+                          example: 2025-07-15T10:00:00.000Z
+                        endTime:
+                          type: string
+                          format: date-time
+                          example: 2025-07-15T11:00:00.000Z
+                        status:
+                          type: string
+                          enum: [confirmed, cancelled]
+                          example: confirmed
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: 2025-07-11T09:00:00.000Z
+                  meta:
+                    type: object
+                    properties:
+                      limit:
+                        type: integer
+                        example: 20
+                      offset:
+                        type: integer
+                        example: 0
+                      total:
+                        type: integer
+                        example: 5
+        401:
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /reservations/{id}/cancel:
+    post:
+      summary: 予約キャンセル
+      description: 指定された予約をキャンセルする（24時間前まで）
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: 予約ID
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: キャンセル成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 予約をキャンセルしました
+        400:
+          description: キャンセル不可（24時間以内、既にキャンセル済みなど）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: 予約が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 400
+        statusMessage:
+          type: string
+          example: エラーメッセージ
+        data:
+          type: object
+          description: 追加のエラー情報（バリデーションエラーなど）
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: auth-token
+      description: HTTPOnlyクッキーによる認証

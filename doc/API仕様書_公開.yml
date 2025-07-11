@@ -163,7 +163,9 @@ paths:
   /reservations:
     post:
       summary: 予約作成
-      description: 新規予約を作成する（認証不要）
+      description: 新規予約を作成する（認証必須）
+      security:
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -171,22 +173,13 @@ paths:
             schema:
               type: object
               required:
-                - serviceId
-                - customerName
-                - customerEmail
-                - startTime
+                - service_id
+                - start_time
               properties:
-                serviceId:
+                service_id:
                   type: integer
                   example: 1
-                customerName:
-                  type: string
-                  example: 山田花子
-                customerEmail:
-                  type: string
-                  format: email
-                  example: customer@example.com
-                startTime:
+                start_time:
                   type: string
                   format: date-time
                   example: 2024-01-15T10:00:00Z
@@ -204,12 +197,9 @@ paths:
                   serviceId:
                     type: integer
                     example: 1
-                  customerName:
+                  customerId:
                     type: string
-                    example: 山田花子
-                  customerEmail:
-                    type: string
-                    example: customer@example.com
+                    example: 550e8400-e29b-41d4-a716-446655440000
                   startTime:
                     type: string
                     format: date-time
@@ -260,3 +250,10 @@ components:
         code:
           type: string
           example: VALIDATION_ERROR
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: auth-token
+      description: HTTPOnlyクッキーによる認証

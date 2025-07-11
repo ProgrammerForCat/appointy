@@ -5,8 +5,16 @@ export interface User {
   name: string
   email: string
   hashed_password: string
-  profile_image_key?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Store {
+  id: string
+  user_id: string
+  store_name: string
   description?: string
+  profile_image_key?: string
   business_hours?: string
   created_at: string
   updated_at: string
@@ -14,7 +22,7 @@ export interface User {
 
 export interface Service {
   id: number
-  user_id: string
+  store_id: string
   name: string
   duration_minutes: number
   price: number
@@ -26,8 +34,7 @@ export interface Service {
 export interface Reservation {
   id: number
   service_id: number
-  customer_name: string
-  customer_email: string
+  customer_id: string
   start_time: string
   end_time: string
   status: 'confirmed' | 'cancelled'

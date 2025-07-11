@@ -1,6 +1,6 @@
 import { requireAuth } from '~/server/utils/auth'
 import { execute, queryOne } from '~/server/database'
-import type { Reservation } from '~/server/utils/types'
+import type { Reservation, Store } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -13,6 +13,19 @@ export default defineEventHandler(async (event) => {
       })
     }
     
+    // ユーザーの店舗を取得
+    const store = queryOne(
+      'SELECT id FROM stores WHERE user_id = ?',
+      [authUser.userId]
+    ) as Store | undefined
+    
+    if (!store) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: '店舗が見つかりません'
+      })
+    }
+    
     const reservationId = getRouterParam(event, 'id')
     
     // 予約が存在し、所有者が正しいか確認
@@ -20,8 +33,8 @@ export default defineEventHandler(async (event) => {
       SELECT r.*
       FROM reservations r
       JOIN services s ON r.service_id = s.id
-      WHERE r.id = ? AND s.user_id = ?
-    `, [reservationId, authUser.userId]) as Reservation | undefined
+      WHERE r.id = ? AND s.store_id = ?
+    `, [reservationId, store.id]) as Reservation | undefined
     
     if (!existingReservation) {
       throw createError({

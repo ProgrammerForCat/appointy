@@ -11,10 +11,18 @@ export async function insertSampleData() {
       return
     }
     
-    // サンプルユーザーを作成
+    // サンプルユーザーを作成（店舗オーナー）
     const userId = generateUUID()
+    const storeId = generateUUID()
     const hashedPassword = await hashPassword('password123')
     
+    // ユーザー登録
+    execute(
+      'INSERT INTO users (id, name, email, hashed_password) VALUES (?, ?, ?, ?)',
+      [userId, '田中太郎', 'owner@example.com', hashedPassword]
+    )
+    
+    // 店舗登録
     const businessHours = JSON.stringify({
       monday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
       tuesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
@@ -26,8 +34,8 @@ export async function insertSampleData() {
     })
     
     execute(
-      'INSERT INTO users (id, name, email, hashed_password, description, business_hours) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, '田中太郎カウンセリングルーム', 'owner@example.com', hashedPassword, '10年以上の経験を持つカウンセラーです。心の悩みから人生相談まで幅広く対応いたします。', businessHours]
+      'INSERT INTO stores (id, user_id, store_name, description, business_hours) VALUES (?, ?, ?, ?, ?)',
+      [storeId, userId, '田中太郎カウンセリングルーム', '10年以上の経験を持つカウンセラーです。心の悩みから人生相談まで幅広く対応いたします。', businessHours]
     )
     
     // サンプルサービスを作成
@@ -39,13 +47,23 @@ export async function insertSampleData() {
     
     for (const service of services) {
       execute(
-        'INSERT INTO services (user_id, name, duration_minutes, price) VALUES (?, ?, ?, ?)',
-        [userId, service.name, service.duration, service.price]
+        'INSERT INTO services (store_id, name, duration_minutes, price) VALUES (?, ?, ?, ?)',
+        [storeId, service.name, service.duration, service.price]
       )
     }
     
+    // サンプル顧客ユーザーを作成
+    const customerId = generateUUID()
+    const customerPassword = await hashPassword('password123')
+    
+    execute(
+      'INSERT INTO users (id, name, email, hashed_password) VALUES (?, ?, ?, ?)',
+      [customerId, '山田花子', 'customer@example.com', customerPassword]
+    )
+    
     console.log('サンプルデータが正常に挿入されました')
-    console.log('ログイン情報: owner@example.com / password123')
+    console.log('店舗オーナー: owner@example.com / password123')
+    console.log('顧客ユーザー: customer@example.com / password123')
   } catch (error) {
     console.error('サンプルデータの挿入エラー:', error)
   }
