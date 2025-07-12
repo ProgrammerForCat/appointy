@@ -19,6 +19,9 @@
             <NuxtLink to="/owner/reservations" class="hover:text-blue-200">
               予約管理
             </NuxtLink>
+            <NuxtLink to="/booking" class="hover:text-blue-200">
+              予約ページ
+            </NuxtLink>
             <NuxtLink to="/owner/settings" class="hover:text-blue-200">
               設定
             </NuxtLink>

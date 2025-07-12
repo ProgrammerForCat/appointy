@@ -30,9 +30,18 @@
         </div>
       </div>
 
-      <!-- 予約フォーム -->
-      <div v-if="selectedService" class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">予約フォーム</h2>
+      <!-- 予約モーダル -->
+      <Modal v-model="showReservationModal" title="予約フォーム">
+        <div v-if="selectedService">
+          <!-- 選択したサービス情報 -->
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h3 class="font-semibold text-gray-900">{{ selectedService.name }}</h3>
+            <p class="text-blue-600 text-sm">{{ selectedService.storeName }}</p>
+            <div class="mt-2 flex items-center gap-4 text-sm text-gray-600">
+              <span>所要時間: {{ selectedService.durationMinutes }}分</span>
+              <span class="text-blue-600 font-bold">¥{{ selectedService.price.toLocaleString() }}</span>
+            </div>
+          </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- 日付選択 -->
           <div>
@@ -79,25 +88,33 @@
           </div>
         </div>
 
-        <!-- 予約ボタン -->
-        <div class="mt-6">
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-4">
+          <button
+            @click="showReservationModal = false"
+            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+          >
+            キャンセル
+          </button>
           <button 
             v-if="isAuthenticated"
             @click="createReservation"
             :disabled="!canReserve"
-            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             予約する
           </button>
           <NuxtLink
             v-else
             to="/login?redirect=/booking"
-            class="block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             ログインして予約する
           </NuxtLink>
         </div>
-      </div>
+      </template>
+    </Modal>
     </div>
   </NuxtLayout>
 </template>
@@ -113,6 +130,7 @@ const selectedService = ref(null)
 const selectedDate = ref('')
 const selectedTime = ref('')
 const availableSlots = ref([])
+const showReservationModal = ref(false)
 
 // 今日の日付を取得
 const today = new Date().toISOString().split('T')[0]
@@ -137,6 +155,7 @@ const selectService = (service) => {
   selectedDate.value = ''
   selectedTime.value = ''
   availableSlots.value = []
+  showReservationModal.value = true
 }
 
 // 予約可能時間の取得
@@ -170,6 +189,7 @@ const createReservation = async () => {
       }
     })
     
+    showReservationModal.value = false
     alert('予約が完了しました！')
     
     // 予約履歴ページにリダイレクト
