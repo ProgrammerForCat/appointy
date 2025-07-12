@@ -1,35 +1,11 @@
 <template>
   <NuxtLayout name="default">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- 店舗情報 -->
-      <div v-if="profile" class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <div class="flex items-center space-x-4">
-          <img 
-            v-if="profile.profileImageUrl" 
-            :src="profile.profileImageUrl" 
-            :alt="profile.name"
-            class="w-16 h-16 rounded-full object-cover"
-          >
-          <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center" v-else>
-            <span class="text-gray-500 text-xl">{{ profile.name.charAt(0) }}</span>
-          </div>
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">{{ profile.name }}</h1>
-            <p v-if="profile.description" class="text-gray-600 mt-1">{{ profile.description }}</p>
-          </div>
-        </div>
-        
-        <!-- 営業時間 -->
-        <div v-if="profile.businessHours" class="mt-6">
-          <h2 class="text-lg font-semibold text-gray-900 mb-3">営業時間</h2>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div v-for="(day, key) in profile.businessHours" :key="key" class="text-sm">
-              <div class="font-medium text-gray-700">{{ getDayName(key) }}</div>
-              <div class="text-gray-600">
-                {{ day.isOpen ? `${day.openTime} - ${day.closeTime}` : '休業' }}
-              </div>
-            </div>
-          </div>
+      <!-- サービス検索画面ヘッダー -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">サービス予約</h1>
+          <p class="text-gray-600">お好みのサービスを選択して予約してください</p>
         </div>
       </div>
 
@@ -44,6 +20,7 @@
             @click="selectService(service)"
           >
             <h3 class="font-semibold text-gray-900">{{ service.name }}</h3>
+            <p class="text-blue-600 text-sm font-medium">{{ service.storeName }}</p>
             <p class="text-gray-600 text-sm mt-1">{{ service.durationMinutes }}分</p>
             <p class="text-blue-600 font-bold mt-2">¥{{ service.price.toLocaleString() }}</p>
           </div>
@@ -131,7 +108,6 @@ const { checkAuth } = useAuth()
 const isAuthenticated = ref(false)
 
 // データの定義
-const profile = ref(null)
 const services = ref([])
 const selectedService = ref(null)
 const selectedDate = ref('')
@@ -146,19 +122,6 @@ const canReserve = computed(() => {
   return selectedService.value && selectedDate.value && selectedTime.value && isAuthenticated.value
 })
 
-// 曜日名を取得
-const getDayName = (key) => {
-  const dayNames = {
-    monday: '月曜日',
-    tuesday: '火曜日',
-    wednesday: '水曜日',
-    thursday: '木曜日',
-    friday: '金曜日',
-    saturday: '土曜日',
-    sunday: '日曜日'
-  }
-  return dayNames[key] || key
-}
 
 // 時間をフォーマット
 const formatTime = (isoString) => {
@@ -209,11 +172,8 @@ const createReservation = async () => {
     
     alert('予約が完了しました！')
     
-    // フォームをリセット
-    selectedService.value = null
-    selectedDate.value = ''
-    selectedTime.value = ''
-    availableSlots.value = []
+    // 予約履歴ページにリダイレクト
+    await navigateTo('/reservations')
   } catch (error) {
     const errorMessage = error.data?.statusMessage || error.message || '予約に失敗しました。もう一度お試しください。'
     alert(errorMessage)
@@ -225,9 +185,6 @@ onMounted(async () => {
   try {
     // 認証状態を確認
     isAuthenticated.value = await checkAuth()
-    
-    // 店舗プロフィールを取得
-    profile.value = await $fetch('/api/public/profile')
     
     // サービス一覧を取得
     const serviceResponse = await $fetch('/api/public/services')

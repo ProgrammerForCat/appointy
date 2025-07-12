@@ -18,7 +18,7 @@ export const ServiceSchema = z.object({
   name: z.string().min(1, 'サービス名は必須です'),
   duration_minutes: z.number().min(1, '所要時間は1分以上で入力してください'),
   price: z.number().min(0, '料金は0円以上で入力してください'),
-  is_active: z.boolean().optional()
+  is_active: z.boolean().optional().transform((val) => val ? 1 : 0)
 })
 
 // 予約用のバリデーション

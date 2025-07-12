@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    const { name, duration_minutes, price, is_active = true } = validation.data
+    const { name, duration_minutes, price, is_active = 1 } = validation.data
     
     // サービスが存在し、所有者が正しいか確認
     const existingService = queryOne(

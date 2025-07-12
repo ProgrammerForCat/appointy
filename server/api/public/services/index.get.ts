@@ -3,14 +3,15 @@ import type { Service } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
-    // 有効なサービス一覧を取得（最初の店舗のサービス）
+    // 全店舗の有効なサービス一覧を取得
     const services = query(
-      `SELECT s.* FROM services s 
+      `SELECT s.*, st.store_name, st.description as store_description
+       FROM services s 
        JOIN stores st ON s.store_id = st.id 
-       WHERE s.is_active = 1 
-       ORDER BY s.created_at ASC`,
+       WHERE (s.is_active = 1 OR s.is_active = 'true' OR s.is_active = 'True')
+       ORDER BY st.created_at ASC, s.created_at ASC`,
       []
-    ) as Service[]
+    ) as (Service & { store_name: string; store_description: string })[]
     
     // レスポンス
     return {
@@ -18,7 +19,10 @@ export default defineEventHandler(async (event) => {
         id: service.id,
         name: service.name,
         durationMinutes: service.duration_minutes,
-        price: service.price
+        price: service.price,
+        storeId: service.store_id,
+        storeName: service.store_name,
+        storeDescription: service.store_description
       }))
     }
   } catch (error) {

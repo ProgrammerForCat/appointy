@@ -12,7 +12,14 @@ paths:
   /profile:
     get:
       summary: 店舗プロフィール取得
-      description: 店舗の公開プロフィール情報を取得する（認証不要）
+      description: 店舗の公開プロフィール情報を取得する（認証不要、店舗ID指定可能）
+      parameters:
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 指定した店舗のプロフィールを取得（未指定時は最初の店舗）
       responses:
         200:
           description: プロフィール取得成功
@@ -51,8 +58,8 @@ paths:
 
   /services:
     get:
-      summary: サービス一覧取得
-      description: 利用可能なサービス一覧を取得する（認証不要）
+      summary: 全店舗サービス一覧取得
+      description: 全店舗の利用可能なサービス一覧を取得する（認証不要、店舗名含む）
       responses:
         200:
           description: サービス一覧取得成功
@@ -78,6 +85,15 @@ paths:
                         price:
                           type: integer
                           example: 5000
+                        storeId:
+                          type: string
+                          example: "550e8400-e29b-41d4-a716-446655440000"
+                        storeName:
+                          type: string
+                          example: "田中太郎カウンセリングルーム"
+                        storeDescription:
+                          type: string
+                          example: "10年以上の経験を持つカウンセラーです"
 
   /services/{serviceId}:
     get:

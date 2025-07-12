@@ -1,6 +1,3 @@
 <template>
-  <div>
-    <!-- 何もレイアウトしない、素のコンテンツのみ -->
-    <slot />
-  </div>
+  <slot />
 </template>

@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    const { name, duration_minutes, price, is_active = true } = validation.data
+    const { name, duration_minutes, price, is_active = 1 } = validation.data
     
     // サービスを作成
     const result = execute(

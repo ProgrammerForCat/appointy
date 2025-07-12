@@ -2,7 +2,24 @@
   <NuxtLayout name="owner">
     <div class="space-y-6">
       <div class="bg-white shadow rounded-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-4">ダッシュボード</h1>
+        <div class="flex items-center justify-between mb-4">
+          <h1 class="text-2xl font-bold text-gray-900">ダッシュボード</h1>
+          <div class="flex items-center space-x-4">
+            <NuxtLink
+              to="/booking"
+              class="px-3 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 flex items-center space-x-1"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <span>予約画面を確認</span>
+            </NuxtLink>
+            <div v-if="user" class="text-sm text-gray-600">
+              <span class="font-medium">{{ user.name }}</span> さん
+            </div>
+          </div>
+        </div>
         
         <!-- 統計情報 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -85,6 +102,7 @@ definePageMeta({
 // データの定義
 const reservations = ref([])
 const services = ref([])
+const user = ref(null)
 
 // 計算プロパティ
 const todayReservations = computed(() => {
@@ -120,6 +138,9 @@ const formatDate = (isoString) => {
 // 初期データの取得
 onMounted(async () => {
   try {
+    // ユーザー情報を取得
+    user.value = await $fetch('/api/auth/me')
+    
     // 予約一覧を取得
     const reservationResponse = await $fetch('/api/owner/reservations')
     reservations.value = reservationResponse.reservations

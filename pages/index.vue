@@ -19,10 +19,18 @@
                 予約する
               </NuxtLink>
               <NuxtLink 
+                v-if="!isAuthenticated"
                 to="/login" 
                 class="inline-flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
               >
                 ログイン / 新規登録
+              </NuxtLink>
+              <NuxtLink 
+                v-else
+                to="/dashboard" 
+                class="inline-flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
+              >
+                ダッシュボード
               </NuxtLink>
             </div>
           </div>
@@ -95,6 +103,15 @@
 </template>
 
 <script setup>
+// 認証状態管理
+const { checkAuth } = useAuth()
+const isAuthenticated = ref(false)
+
+// 認証状態を確認
+onMounted(async () => {
+  isAuthenticated.value = await checkAuth()
+})
+
 // ランディングページ用のメタデータ
 useHead({
   title: 'Appointy - シンプルな予約管理システム',

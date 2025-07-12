@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
       for (const service of defaultServices) {
         execute(
           'INSERT INTO services (store_id, name, duration_minutes, price, is_active) VALUES (?, ?, ?, ?, ?)',
-          [storeId, service.name, service.duration, service.price, true]
+          [storeId, service.name, service.duration, service.price, 1]
         )
       }
     }

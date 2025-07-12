@@ -30,7 +30,7 @@ erDiagram
         text name "サービス名"
         integer duration_minutes "所要時間（分）"
         integer price "料金"
-        boolean is_active "有効フラグ"
+        integer is_active "有効フラグ（1:有効、0:無効）"
         datetime created_at "作成日時"
         datetime updated_at "更新日時"
     }
@@ -84,7 +84,7 @@ erDiagram
 | name | TEXT | NOT NULL | サービス名 |
 | duration_minutes | INTEGER | NOT NULL | 所要時間（分） |
 | price | INTEGER | NOT NULL | 料金（円） |
-| is_active | BOOLEAN | NOT NULL DEFAULT true | サービスの有効/無効 |
+| is_active | INTEGER | NOT NULL DEFAULT 1 | サービスの有効/無効（1:有効、0:無効） |
 | created_at | DATETIME | NOT NULL | レコード作成日時 |
 | updated_at | DATETIME | NOT NULL | レコード更新日時 |
 

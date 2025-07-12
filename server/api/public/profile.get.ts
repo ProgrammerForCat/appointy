@@ -3,11 +3,25 @@ import type { Store, BusinessHours } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
-    // 最初の店舗を取得（シングルテナント想定）
-    const store = queryOne(
-      'SELECT * FROM stores ORDER BY created_at ASC LIMIT 1',
-      []
-    ) as Store | undefined
+    // クエリパラメータから店舗IDを取得
+    const queryParams = getQuery(event)
+    const storeId = queryParams.storeId as string
+    
+    let store: Store | undefined
+    
+    if (storeId) {
+      // 指定された店舗を取得
+      store = queryOne(
+        'SELECT * FROM stores WHERE id = ?',
+        [storeId]
+      ) as Store | undefined
+    } else {
+      // 店舗IDが指定されていない場合は最初の店舗を取得
+      store = queryOne(
+        'SELECT * FROM stores ORDER BY created_at ASC LIMIT 1',
+        []
+      ) as Store | undefined
+    }
     
     if (!store) {
       throw createError({
