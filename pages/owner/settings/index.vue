@@ -3,28 +3,38 @@
     <div class="space-y-6">
       <!-- ヘッダー -->
       <div class="bg-white shadow rounded-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-900">設定</h1>
-        <p class="text-gray-600 mt-1">プロフィール情報と営業時間を管理できます</p>
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">店舗設定</h1>
+            <p class="text-gray-600 mt-1">店舗情報と営業時間を管理できます</p>
+          </div>
+          <NuxtLink 
+            to="/profile"
+            class="text-blue-600 hover:text-blue-900 text-sm"
+          >
+            個人設定はこちら
+          </NuxtLink>
+        </div>
       </div>
 
-      <!-- プロフィール設定 -->
+      <!-- 店舗設定 -->
       <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">プロフィール設定</h2>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">店舗情報</h2>
         
         <form @submit.prevent="saveProfile" class="space-y-6">
-          <!-- プロフィール画像 -->
+          <!-- 店舗画像 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">プロフィール画像</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">店舗画像</label>
             <div class="flex items-center space-x-4">
-              <div class="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+              <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                 <img
                   v-if="profileImageUrl"
                   :src="profileImageUrl"
-                  alt="プロフィール画像"
+                  alt="店舗画像"
                   class="w-full h-full object-cover"
                 >
                 <svg v-else class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
               <div class="space-y-2">
@@ -86,7 +96,7 @@
             :disabled="profileLoading"
             class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md disabled:bg-gray-400"
           >
-            {{ profileLoading ? '保存中...' : 'プロフィールを保存' }}
+            {{ profileLoading ? '保存中...' : '店舗情報を保存' }}
           </button>
         </form>
       </div>

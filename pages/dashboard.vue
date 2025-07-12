@@ -6,7 +6,12 @@
         <div class="flex justify-between items-center py-6">
           <h1 class="text-2xl font-bold text-gray-900">ダッシュボード</h1>
           <div class="flex items-center space-x-4">
-            <span class="text-gray-700">{{ userName }}さん</span>
+            <NuxtLink 
+              to="/profile"
+              class="text-gray-700 hover:text-gray-900 transition-colors cursor-pointer"
+            >
+              {{ userName }}さん
+            </NuxtLink>
             <button
               @click="logout"
               class="text-gray-500 hover:text-gray-700"

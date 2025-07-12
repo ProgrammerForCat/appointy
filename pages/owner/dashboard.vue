@@ -7,7 +7,7 @@
           <div class="flex items-center space-x-4">
             <NuxtLink 
               v-if="user" 
-              to="/owner/settings"
+              to="/profile"
               class="text-sm text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
             >
               <span class="font-medium">{{ user.name }}</span> さん
