@@ -4,14 +4,14 @@ FROM node:20-alpine
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# Gitをインストール
-RUN apk add --no-cache git
+# Git及びbetter-sqlite3のビルドに必要な依存関係をインストール
+RUN apk add --no-cache git python3 make g++ gcc libc-dev
 
 # パッケージファイルをコピー
 COPY package*.json ./
 
-# 依存関係をインストール
-RUN npm ci
+# 依存関係をインストール（better-sqlite3のビルドを含む）
+RUN npm ci --build-from-source
 
 # アプリケーションファイルをコピー
 COPY . .

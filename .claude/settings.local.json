@@ -14,7 +14,9 @@
       "Bash(grep:*)",
       "Bash(docker-compose exec app netstat:*)",
       "Bash(docker-compose exec:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(docker-compose:*)",
+      "Bash(docker compose exec:*)"
     ],
     "deny": []
   }
