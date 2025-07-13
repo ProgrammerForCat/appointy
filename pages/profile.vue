@@ -1,17 +1,16 @@
 <template>
-  <NuxtLayout name="default">
-    <div class="min-h-screen bg-gray-100">
-      <!-- ヘッダー -->
-      <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between items-center py-6">
-            <h1 class="text-2xl font-bold text-gray-900">プロフィール設定</h1>
-            <NuxtLink to="/dashboard" class="text-gray-600 hover:text-gray-900">
-              ダッシュボードに戻る
-            </NuxtLink>
-          </div>
+  <div class="min-h-screen bg-gray-100">
+    <!-- ページヘッダー -->
+    <div class="bg-white shadow mb-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-6">
+          <h1 class="text-2xl font-bold text-gray-900">プロフィール設定</h1>
+          <NuxtLink to="/dashboard" class="text-gray-600 hover:text-gray-900">
+            ダッシュボードに戻る
+          </NuxtLink>
         </div>
-      </header>
+      </div>
+    </div>
 
       <!-- メインコンテンツ -->
       <main class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -183,13 +182,13 @@
         </Modal>
       </main>
     </div>
-  </NuxtLayout>
 </template>
 
 <script setup>
 // 認証チェック
 definePageMeta({
-  middleware: 'auth'
+  middleware: 'auth',
+  layout: 'default'
 })
 
 // データの定義

@@ -1,30 +1,9 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
-    <!-- ヘッダー -->
-    <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
-          <h1 class="text-2xl font-bold text-gray-900">ダッシュボード</h1>
-          <div class="flex items-center space-x-4">
-            <NuxtLink 
-              to="/profile"
-              class="text-gray-700 hover:text-gray-900 transition-colors cursor-pointer"
-            >
-              {{ userName }}さん
-            </NuxtLink>
-            <button
-              @click="logout"
-              class="text-gray-500 hover:text-gray-700"
-            >
-              ログアウト
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- メインコンテンツ -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- ページタイトル -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-gray-900">ダッシュボード</h1>
+    </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         <!-- 予約を作る -->
@@ -128,14 +107,14 @@
           </div>
         </div>
       </div>
-    </main>
   </div>
 </template>
 
 <script setup>
 // 認証チェック
 definePageMeta({
-  middleware: 'auth'
+  middleware: 'auth',
+  layout: 'default'
 })
 
 // データ
@@ -177,15 +156,7 @@ const formatDate = (dateString) => {
   })
 }
 
-// ログアウト
-const logout = async () => {
-  try {
-    await $fetch('/api/auth/logout', { method: 'POST' })
-    await navigateTo('/login')
-  } catch (error) {
-    console.error('ログアウトに失敗しました:', error)
-  }
-}
+// ログアウト処理はAppHeaderに移動
 
 // 初期化
 onMounted(() => {

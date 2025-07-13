@@ -1,5 +1,5 @@
 <template>
-  <NuxtLayout name="owner">
+  <div>
     <div class="space-y-6">
       <!-- ヘッダー -->
       <div class="bg-white shadow rounded-lg p-6">
@@ -254,13 +254,14 @@
         </div>
       </div>
     </div>
-  </NuxtLayout>
+  </div>
 </template>
 
 <script setup>
 // 認証チェック
 definePageMeta({
-  middleware: 'auth-owner'
+  middleware: 'auth-owner',
+  layout: 'owner'
 })
 
 // データの定義

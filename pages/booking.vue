@@ -1,5 +1,8 @@
 <template>
-  <NuxtLayout name="default">
+  <div>
+    <!-- 動的ヘッダー -->
+    <AppHeader :user-type="isOwner ? 'owner' : 'customer'" :key="isOwner ? 'owner-booking' : 'customer-booking'" />
+    
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- サービス検索画面ヘッダー -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -116,13 +119,33 @@
       </template>
     </Modal>
     </div>
-  </NuxtLayout>
+  </div>
 </template>
 
 <script setup>
-// 認証
-const { checkAuth } = useAuth()
+// レイアウトなしに設定（独自ヘッダーを使用）
+definePageMeta({
+  layout: false
+})
+
+// 認証とユーザー情報
+const { checkAuth, getUser } = useAuth()
 const isAuthenticated = ref(false)
+const isOwner = ref(false)
+
+// ユーザーの役割を確認
+const checkUserRole = async () => {
+  try {
+    const user = await getUser()
+    if (user && user.hasStore) {
+      isOwner.value = true
+    } else {
+      isOwner.value = false
+    }
+  } catch (error) {
+    isOwner.value = false
+  }
+}
 
 // データの定義
 const services = ref([])
@@ -205,6 +228,9 @@ onMounted(async () => {
   try {
     // 認証状態を確認
     isAuthenticated.value = await checkAuth()
+    
+    // ユーザーの役割を確認
+    await checkUserRole()
     
     // サービス一覧を取得
     const serviceResponse = await $fetch('/api/public/services')

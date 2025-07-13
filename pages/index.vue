@@ -1,6 +1,5 @@
 <template>
-  <NuxtLayout name="default">
-    <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50">
       <!-- ヒーローセクション -->
       <div class="bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
@@ -99,10 +98,13 @@
         </div>
       </div>
     </div>
-  </NuxtLayout>
 </template>
 
 <script setup>
+// レイアウト指定
+definePageMeta({
+  layout: 'default'
+})
 // 認証状態管理
 const { checkAuth } = useAuth()
 const isAuthenticated = ref(false)
