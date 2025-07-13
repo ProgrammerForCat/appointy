@@ -32,6 +32,9 @@
               <div class="flex-1">
                 <div class="flex items-center space-x-3">
                   <h3 class="text-lg font-medium text-gray-900">{{ service.name }}</h3>
+                  <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                    {{ service.category || 'その他' }}
+                  </span>
                   <span
                     :class="service.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
                     class="px-2 py-1 text-xs font-medium rounded-full"
@@ -92,6 +95,26 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="例: カウンセリング"
               >
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">カテゴリ</label>
+              <div v-if="showEditModal" class="mb-2 text-sm text-gray-600">
+                現在のカテゴリ: <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">{{ editingService?.category || 'その他' }}</span>
+              </div>
+              <select
+                v-model="formData.category"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">カテゴリを選択してください</option>
+                <option v-for="category in categories" :key="category" :value="category">
+                  {{ category }}
+                </option>
+              </select>
+              <p class="mt-1 text-sm text-gray-500">
+                カテゴリは予約ページでサービスを分類・検索するために使用されます
+              </p>
             </div>
             
             <div>
@@ -168,8 +191,20 @@ const editingService = ref(null)
 const loading = ref(false)
 const error = ref('')
 
+// カテゴリ一覧
+const categories = ref([
+  '美容・ヘアケア',
+  'ネイル',
+  'リラクゼーション', 
+  'ヘルス・フィットネス',
+  'レッスン・教室',
+  'コンサルティング',
+  'その他'
+])
+
 const formData = ref({
   name: '',
+  category: '',
   duration_minutes: 60,
   price: 0,
   is_active: true
@@ -179,6 +214,7 @@ const formData = ref({
 const resetForm = () => {
   formData.value = {
     name: '',
+    category: '',
     duration_minutes: 60,
     price: 0,
     is_active: true
@@ -199,9 +235,10 @@ const editService = (service) => {
   editingService.value = service
   formData.value = {
     name: service.name,
+    category: service.category || 'その他',
     duration_minutes: service.durationMinutes,
     price: service.price,
-    is_active: service.isActive
+    is_active: Boolean(service.isActive) // 数値をbooleanに変換
   }
   showEditModal.value = true
 }
@@ -242,9 +279,10 @@ const toggleServiceStatus = async (service) => {
       method: 'PUT',
       body: {
         name: service.name,
+        category: service.category || 'その他',
         duration_minutes: service.durationMinutes,
         price: service.price,
-        is_active: !service.isActive
+        is_active: service.isActive ? false : true // 数値を考慮した boolean 変換
       }
     })
     await loadServices()

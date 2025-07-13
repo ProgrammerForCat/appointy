@@ -56,6 +56,15 @@ export function execute(sql: string, params: any[] = []) {
 // アプリケーション起動時にデータベースを初期化
 initializeDatabase()
 
+// マイグレーション実行（開発環境のみ）
+if (process.env.NODE_ENV !== 'production') {
+  import('./../../server/utils/migrate-categories').then(module => {
+    module.migrateCategoryColumn().catch(error => {
+      console.warn('マイグレーション警告:', error.message)
+    })
+  })
+}
+
 // サンプルデータを挿入（開発環境のみ）
 if (process.env.NODE_ENV !== 'production') {
   import('./../../server/utils/sample-data').then(module => {

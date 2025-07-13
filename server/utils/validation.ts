@@ -16,9 +16,14 @@ export const RegisterSchema = z.object({
 // サービス用のバリデーション
 export const ServiceSchema = z.object({
   name: z.string().min(1, 'サービス名は必須です'),
+  category: z.string().min(1, 'カテゴリは必須です'),
   duration_minutes: z.number().min(1, '所要時間は1分以上で入力してください'),
   price: z.number().min(0, '料金は0円以上で入力してください'),
-  is_active: z.boolean().optional().transform((val) => val ? 1 : 0)
+  is_active: z.union([
+    z.boolean().transform((val) => val ? 1 : 0),
+    z.number().min(0).max(1),
+    z.string().transform((val) => val === 'true' || val === '1' ? 1 : 0)
+  ]).optional().default(1)
 })
 
 // 予約用のバリデーション

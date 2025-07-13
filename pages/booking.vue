@@ -12,24 +12,55 @@
         </div>
       </div>
 
+      <!-- カテゴリフィルター -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-3">カテゴリから探す</h2>
+        <div class="flex flex-wrap gap-2">
+          <button
+            @click="selectedCategory = ''"
+            :class="selectedCategory === '' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="px-4 py-2 rounded-full text-sm font-medium transition-colors"
+          >
+            すべて
+          </button>
+          <button
+            v-for="category in categories"
+            :key="category"
+            @click="selectedCategory = category"
+            :class="selectedCategory === category ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="px-4 py-2 rounded-full text-sm font-medium transition-colors"
+          >
+            {{ category }}
+          </button>
+        </div>
+      </div>
+
       <!-- サービス一覧 -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">提供サービス</h2>
-        <div v-if="services.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">
+          {{ selectedCategory ? `${selectedCategory}のサービス` : '提供サービス' }}
+          <span class="text-sm text-gray-500">({{ filteredServices.length }}件)</span>
+        </h2>
+        <div v-if="filteredServices.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div 
-            v-for="service in services" 
+            v-for="service in filteredServices" 
             :key="service.id"
             class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 cursor-pointer"
             @click="selectService(service)"
           >
-            <h3 class="font-semibold text-gray-900">{{ service.name }}</h3>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold text-gray-900">{{ service.name }}</h3>
+              <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                {{ service.category || 'その他' }}
+              </span>
+            </div>
             <p class="text-blue-600 text-sm font-medium">{{ service.storeName }}</p>
             <p class="text-gray-600 text-sm mt-1">{{ service.durationMinutes }}分</p>
             <p class="text-blue-600 font-bold mt-2">¥{{ service.price.toLocaleString() }}</p>
           </div>
         </div>
         <div v-else class="text-gray-500 text-center py-8">
-          現在、提供可能なサービスはありません。
+          {{ selectedCategory ? `${selectedCategory}のサービスはありません。` : '現在、提供可能なサービスはありません。' }}
         </div>
       </div>
 
@@ -167,12 +198,31 @@ const selectedTime = ref('')
 const availableSlots = ref([])
 const showReservationModal = ref(false)
 
+// カテゴリ関連
+const categories = ref([
+  '美容・ヘアケア',
+  'ネイル',
+  'リラクゼーション',
+  'ヘルス・フィットネス',
+  'レッスン・教室',
+  'コンサルティング',
+  'その他'
+])
+const selectedCategory = ref('')
+
 // 今日の日付を取得
 const today = new Date().toISOString().split('T')[0]
 
 // 計算プロパティ
 const canReserve = computed(() => {
   return selectedService.value && selectedDate.value && selectedTime.value && isAuthenticated.value
+})
+
+const filteredServices = computed(() => {
+  if (!selectedCategory.value) {
+    return services.value
+  }
+  return services.value.filter(service => service.category === selectedCategory.value)
 })
 
 

@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    const { name, duration_minutes, price, is_active = 1 } = validation.data
+    const { name, category, duration_minutes, price, is_active = 1 } = validation.data
     
     // サービスが存在し、所有者が正しいか確認
     const existingService = queryOne(
@@ -57,8 +57,8 @@ export default defineEventHandler(async (event) => {
     
     // サービスを更新
     execute(
-      'UPDATE services SET name = ?, duration_minutes = ?, price = ?, is_active = ? WHERE id = ? AND store_id = ?',
-      [name, duration_minutes, price, is_active, serviceId, store.id]
+      'UPDATE services SET name = ?, category = ?, duration_minutes = ?, price = ?, is_active = ? WHERE id = ? AND store_id = ?',
+      [name, category, duration_minutes, price, is_active, serviceId, store.id]
     )
     
     // 更新されたサービスを返す
@@ -66,6 +66,7 @@ export default defineEventHandler(async (event) => {
       id: parseInt(serviceId),
       storeId: store.id,
       name,
+      category,
       durationMinutes: duration_minutes,
       price,
       isActive: is_active,

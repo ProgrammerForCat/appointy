@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
       services: services.map(service => ({
         id: service.id,
         name: service.name,
+        category: service.category || 'その他',
         durationMinutes: service.duration_minutes,
         price: service.price,
         storeId: service.store_id,

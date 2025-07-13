@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS services (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     store_id TEXT NOT NULL,
     name TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'その他',
     duration_minutes INTEGER NOT NULL,
     price INTEGER NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT true,
@@ -51,11 +52,16 @@ CREATE TABLE IF NOT EXISTS reservations (
     FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- 既存テーブルへのカテゴリカラム追加（マイグレーション）
+-- 注意: 本番環境では慎重に実行すること
+-- ALTER TABLE services ADD COLUMN category TEXT DEFAULT 'その他';
+
 -- インデックス作成
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_stores_user_id ON stores(user_id);
 CREATE INDEX IF NOT EXISTS idx_services_store_id ON services(store_id);
 CREATE INDEX IF NOT EXISTS idx_services_is_active ON services(is_active);
+CREATE INDEX IF NOT EXISTS idx_services_category ON services(category);
 CREATE INDEX IF NOT EXISTS idx_reservations_service_id ON reservations(service_id);
 CREATE INDEX IF NOT EXISTS idx_reservations_customer_id ON reservations(customer_id);
 CREATE INDEX IF NOT EXISTS idx_reservations_start_time ON reservations(start_time);

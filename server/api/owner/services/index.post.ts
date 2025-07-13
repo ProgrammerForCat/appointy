@@ -39,12 +39,12 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    const { name, duration_minutes, price, is_active = 1 } = validation.data
+    const { name, category, duration_minutes, price, is_active = 1 } = validation.data
     
     // サービスを作成
     const result = execute(
-      'INSERT INTO services (store_id, name, duration_minutes, price, is_active) VALUES (?, ?, ?, ?, ?)',
-      [store.id, name, duration_minutes, price, is_active]
+      'INSERT INTO services (store_id, name, category, duration_minutes, price, is_active) VALUES (?, ?, ?, ?, ?, ?)',
+      [store.id, name, category, duration_minutes, price, is_active]
     )
     
     // 作成されたサービスを返す
@@ -52,6 +52,7 @@ export default defineEventHandler(async (event) => {
       id: result.lastInsertRowid,
       storeId: store.id,
       name,
+      category,
       durationMinutes: duration_minutes,
       price,
       isActive: is_active,

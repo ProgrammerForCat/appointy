@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
         id: service.id,
         storeId: service.store_id,
         name: service.name,
+        category: service.category || 'その他',
         durationMinutes: service.duration_minutes,
         price: service.price,
         isActive: service.is_active,
