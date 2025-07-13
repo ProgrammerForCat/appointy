@@ -33,7 +33,7 @@
                 to="/dashboard" 
                 :class="linkClasses"
               >
-                ダッシュボード
+                マイページ
               </NuxtLink>
               <NuxtLink 
                 v-if="currentUser"
@@ -42,6 +42,13 @@
               >
                 {{ currentUser.name }}さん
               </NuxtLink>
+              <button 
+                v-if="currentUser && currentUser.hasStore"
+                @click="switchToOwnerMode"
+                :class="[linkClasses, 'bg-blue-100 text-blue-700 px-3 py-1 rounded-md']"
+              >
+                店舗モードへ
+              </button>
               <button 
                 @click="handleLogout"
                 :class="linkClasses"
@@ -80,10 +87,10 @@
               予約管理
             </NuxtLink>
             <NuxtLink 
-              to="/booking" 
+              to="/booking?mode=owner" 
               :class="linkClasses"
             >
-              予約ページ
+              予約受付
             </NuxtLink>
             <NuxtLink 
               to="/owner/settings" 
@@ -91,6 +98,12 @@
             >
               設定
             </NuxtLink>
+            <button 
+              @click="switchToCustomerMode"
+              :class="[linkClasses, 'bg-white bg-opacity-20 px-3 py-1 rounded-md']"
+            >
+              お客さまモードへ
+            </button>
             <button 
               @click="handleLogout" 
               :class="linkClasses"
@@ -167,7 +180,7 @@ const linkClasses = computed(() => {
 })
 
 const logoText = computed(() => {
-  return props.userType === 'owner' ? 'Appointy オーナー' : 'Appointy'
+  return props.userType === 'owner' ? 'Appointy 店舗' : 'Appointy'
 })
 
 const logoLink = computed(() => {
@@ -192,6 +205,15 @@ const handleLogout = async () => {
       await navigateTo('/login')
     }
   }
+}
+
+// モード切り替え関数
+const switchToOwnerMode = async () => {
+  await navigateTo('/owner/dashboard')
+}
+
+const switchToCustomerMode = async () => {
+  await navigateTo('/')
 }
 
 // 認証状態を更新する関数

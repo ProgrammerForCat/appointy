@@ -1,7 +1,7 @@
 <template>
   <div>
-    <!-- 動的ヘッダー -->
-    <AppHeader :user-type="isOwner ? 'owner' : 'customer'" :key="isOwner ? 'owner-booking' : 'customer-booking'" />
+    <!-- 来た場所に応じてヘッダーを切り替え -->
+    <AppHeader :user-type="headerMode" :key="headerMode + '-booking'" />
     
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- サービス検索画面ヘッダー -->
@@ -128,23 +128,35 @@ definePageMeta({
   layout: false
 })
 
-// 認証とユーザー情報
-const { checkAuth, getUser } = useAuth()
+// 認証
+const { checkAuth } = useAuth()
 const isAuthenticated = ref(false)
-const isOwner = ref(false)
 
-// ユーザーの役割を確認
-const checkUserRole = async () => {
-  try {
-    const user = await getUser()
-    if (user && user.hasStore) {
-      isOwner.value = true
-    } else {
-      isOwner.value = false
-    }
-  } catch (error) {
-    isOwner.value = false
+// ヘッダーモードの判定
+const headerMode = ref('customer')
+
+// どこから来たかを判定する関数
+const determineHeaderMode = () => {
+  const route = useRoute()
+  const router = useRouter()
+  
+  // URLパラメータでモードが指定されている場合
+  if (route.query.mode === 'owner') {
+    headerMode.value = 'owner'
+    return
   }
+  
+  // リファラーを確認（オーナーページから来た場合）
+  if (process.client) {
+    const referrer = document.referrer
+    if (referrer.includes('/owner/')) {
+      headerMode.value = 'owner'
+      return
+    }
+  }
+  
+  // デフォルトはお客さまモード
+  headerMode.value = 'customer'
 }
 
 // データの定義
@@ -226,11 +238,11 @@ const createReservation = async () => {
 // 初期データの取得
 onMounted(async () => {
   try {
+    // ヘッダーモードを判定
+    determineHeaderMode()
+    
     // 認証状態を確認
     isAuthenticated.value = await checkAuth()
-    
-    // ユーザーの役割を確認
-    await checkUserRole()
     
     // サービス一覧を取得
     const serviceResponse = await $fetch('/api/public/services')
