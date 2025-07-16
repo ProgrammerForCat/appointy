@@ -1,6 +1,6 @@
 import { RegisterSchema } from '~/server/utils/validation'
 import { queryOne, execute } from '~/server/database'
-import { hashPassword, generateToken, generateUUID } from '~/server/utils/auth'
+import { hashPassword, generateToken } from '~/server/utils/auth'
 import type { User } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
@@ -36,12 +36,13 @@ export default defineEventHandler(async (event) => {
     const hashedPassword = await hashPassword(password)
     
     // ユーザーを作成
-    const userId = generateUUID()
-    execute(
-      `INSERT INTO users (id, name, email, hashed_password, created_at, updated_at) 
-       VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))`,
-      [userId, name, email, hashedPassword]
+    const result = execute(
+      `INSERT INTO users (name, email, hashed_password, created_at, updated_at) 
+       VALUES (?, ?, ?, datetime('now'), datetime('now'))`,
+      [name, email, hashedPassword]
     )
+    
+    const userId = result.lastInsertRowid as number
     
     // JWTトークンを生成
     const token = generateToken({

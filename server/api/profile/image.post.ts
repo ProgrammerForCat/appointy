@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     // 画像キーを生成
     const fileExtension = imageFile.type.split('/')[1]
     const timestamp = Date.now()
-    const imageKey = `user-${authUser.userId}-${timestamp}.${fileExtension}`
+    const imageKey = `profile-${authUser.userId}-${timestamp}.${fileExtension}`
     
     // AWS SDKを動的インポート
     const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3').then(m => m)
@@ -92,7 +92,7 @@ export default defineEventHandler(async (event) => {
       throw error
     }
     
-    console.error('画像アップロードURL生成エラー:', error)
+    console.error('プロフィール画像アップロードエラー:', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'サーバーエラーが発生しました'

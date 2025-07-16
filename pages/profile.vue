@@ -299,7 +299,7 @@ onMounted(async () => {
     }
     profileImageUrl.value = user.profileImageUrl || ''
   } catch (error) {
-    console.error('プロフィール取得エラー:', error)
+    // プロフィール取得エラー
   }
 })
 </script>

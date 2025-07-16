@@ -1,4 +1,4 @@
-import { requireAuth, generateUUID } from '~/server/utils/auth'
+import { requireAuth } from '~/server/utils/auth'
 import { queryOne, execute } from '~/server/database'
 import type { Store } from '~/server/utils/types'
 
@@ -37,7 +37,6 @@ export default defineEventHandler(async (event) => {
     }
     
     // 店舗を作成
-    const storeId = generateUUID()
     const businessHours = JSON.stringify({
       monday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
       tuesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
@@ -48,17 +47,18 @@ export default defineEventHandler(async (event) => {
       sunday: { isOpen: false, openTime: null, closeTime: null }
     })
     
-    execute(
-      `INSERT INTO stores (id, user_id, store_name, description, business_hours, created_at, updated_at) 
-       VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+    const result = execute(
+      `INSERT INTO stores (user_id, store_name, description, business_hours, created_at, updated_at) 
+       VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))`,
       [
-        storeId,
         authUser.userId,
         body.storeName.trim(),
         body.description || '',
         businessHours
       ]
     )
+    
+    const storeId = result.lastInsertRowid as number
     
     // デフォルトサービスを作成（オプション）
     if (body.createDefaultServices) {

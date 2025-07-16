@@ -224,7 +224,7 @@ onMounted(async () => {
     store.value = serviceResponse.store
     
     // パラメータの検証
-    if (service.value.store_id !== storeId) {
+    if (service.value.store_id !== parseInt(storeId)) {
       error.value = 'サービスが見つかりません'
     }
   } catch (error) {

@@ -1,17 +1,19 @@
 // 型定義ファイル
 
 export interface User {
-  id: string
+  id: number
   name: string
   email: string
+  phone?: string
   hashed_password: string
+  profile_image_key?: string
   created_at: string
   updated_at: string
 }
 
 export interface Store {
-  id: string
-  user_id: string
+  id: number
+  user_id: number
   store_name: string
   description?: string
   profile_image_key?: string
@@ -22,7 +24,7 @@ export interface Store {
 
 export interface Service {
   id: number
-  store_id: string
+  store_id: number
   name: string
   duration_minutes: number
   price: number
@@ -34,7 +36,7 @@ export interface Service {
 export interface Reservation {
   id: number
   service_id: number
-  customer_id: string
+  customer_id: number
   start_time: string
   end_time: string
   status: 'confirmed' | 'cancelled'
@@ -59,7 +61,7 @@ export interface BusinessHours {
 }
 
 export interface JWTPayload {
-  userId: string
+  userId: number
   email: string
   exp: number
 }

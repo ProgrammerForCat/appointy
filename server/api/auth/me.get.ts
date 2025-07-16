@@ -37,6 +37,10 @@ export default defineEventHandler(async (event) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      profileImageUrl: user.profile_image_key 
+        ? `${process.env.R2_PUBLIC_URL || 'http://localhost:9000/appointy'}/${user.profile_image_key}`
+        : null,
       hasStore: !!store,
       store: store ? {
         id: store.id,

@@ -3,18 +3,20 @@
 
 -- ユーザーテーブル（全員共通）
 CREATE TABLE IF NOT EXISTS users (
-    id TEXT PRIMARY KEY, -- UUID
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
+    phone TEXT,
     hashed_password TEXT NOT NULL,
+    profile_image_key TEXT,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 店舗テーブル（店舗運営したいユーザーのみ）
 CREATE TABLE IF NOT EXISTS stores (
-    id TEXT PRIMARY KEY, -- UUID
-    user_id TEXT NOT NULL UNIQUE, -- 1ユーザー1店舗
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL UNIQUE, -- 1ユーザー1店舗
     store_name TEXT NOT NULL,
     description TEXT,
     profile_image_key TEXT,
@@ -27,7 +29,7 @@ CREATE TABLE IF NOT EXISTS stores (
 -- サービステーブル
 CREATE TABLE IF NOT EXISTS services (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    store_id TEXT NOT NULL,
+    store_id INTEGER NOT NULL,
     name TEXT NOT NULL,
     category TEXT NOT NULL DEFAULT 'その他',
     duration_minutes INTEGER NOT NULL,
@@ -42,7 +44,7 @@ CREATE TABLE IF NOT EXISTS services (
 CREATE TABLE IF NOT EXISTS reservations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     service_id INTEGER NOT NULL,
-    customer_id TEXT NOT NULL, -- ユーザーIDに変更
+    customer_id INTEGER NOT NULL, -- ユーザーIDに変更
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,
     status TEXT NOT NULL DEFAULT 'confirmed',
