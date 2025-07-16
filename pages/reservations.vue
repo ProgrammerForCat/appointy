@@ -97,7 +97,7 @@
             <!-- アクション -->
             <div class="mt-4 lg:mt-0 lg:ml-6 flex flex-col sm:flex-row gap-2">
               <NuxtLink
-                :to="`/booking?service=${reservation.serviceId}`"
+                :to="`/store/${reservation.storeId}/service/${reservation.serviceId}`"
                 class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 text-center"
               >
                 再予約

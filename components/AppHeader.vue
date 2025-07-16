@@ -87,12 +87,6 @@
               予約管理
             </NuxtLink>
             <NuxtLink 
-              to="/booking?mode=owner" 
-              :class="linkClasses"
-            >
-              予約受付
-            </NuxtLink>
-            <NuxtLink 
               to="/owner/settings" 
               :class="linkClasses"
             >
