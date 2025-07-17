@@ -88,10 +88,10 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    // 予約を作成
+    // 予約を作成（初期状態はpending）
     const result = execute(
-      'INSERT INTO reservations (service_id, customer_id, start_time, end_time) VALUES (?, ?, ?, ?)',
-      [service_id, authUser.userId, startTime.toISOString(), endTime.toISOString()]
+      'INSERT INTO reservations (service_id, customer_id, start_time, end_time, status) VALUES (?, ?, ?, ?, ?)',
+      [service_id, authUser.userId, startTime.toISOString(), endTime.toISOString(), 'pending']
     )
     
     // 作成された予約を返す
@@ -102,7 +102,8 @@ export default defineEventHandler(async (event) => {
       customerId: authUser.userId,
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
-      message: '予約が完了しました'
+      status: 'pending',
+      message: '予約申込みが完了しました。店舗からの承認をお待ちください。'
     }
   } catch (error) {
     if (error.statusCode) {

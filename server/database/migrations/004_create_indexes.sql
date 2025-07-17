@@ -1,0 +1,4 @@
+CREATE INDEX idx_reservation_messages_reservation_id ON reservation_messages(reservation_id);
+CREATE INDEX idx_reservation_messages_created_at ON reservation_messages(created_at);
+CREATE INDEX idx_reservations_status ON reservations(status);
+CREATE INDEX idx_reservations_confirmed_at ON reservations(confirmed_at);

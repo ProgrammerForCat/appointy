@@ -35,6 +35,9 @@ export function query(sql: string, params: any[] = []) {
   }
 }
 
+// queryAllはqueryのエイリアス
+export const queryAll = query
+
 export function queryOne(sql: string, params: any[] = []) {
   try {
     return db.prepare(sql).get(params)

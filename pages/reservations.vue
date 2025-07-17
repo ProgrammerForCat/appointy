@@ -28,6 +28,7 @@
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">すべて</option>
+              <option value="pending">承認待ち</option>
               <option value="confirmed">確定</option>
               <option value="cancelled">キャンセル</option>
             </select>
@@ -64,6 +65,7 @@
                 <div class="ml-4">
                   <span
                     :class="{
+                      'bg-orange-100 text-orange-800': reservation.status === 'pending',
                       'bg-green-100 text-green-800': reservation.status === 'confirmed',
                       'bg-red-100 text-red-800': reservation.status === 'cancelled'
                     }"
@@ -96,6 +98,12 @@
 
             <!-- アクション -->
             <div class="mt-4 lg:mt-0 lg:ml-6 flex flex-col sm:flex-row gap-2">
+              <button
+                @click="showDetails(reservation)"
+                class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 rounded-md hover:bg-gray-100"
+              >
+                詳細・チャット
+              </button>
               <NuxtLink
                 :to="`/store/${reservation.storeId}/service/${reservation.serviceId}`"
                 class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 text-center"
@@ -153,6 +161,140 @@
         </button>
       </div>
     </main>
+
+    <!-- 予約詳細モーダル -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+      @click="closeModal"
+    >
+      <div
+        class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white"
+        @click.stop
+      >
+        <!-- モーダルヘッダー -->
+        <div class="flex items-center justify-between border-b pb-3">
+          <h3 class="text-lg font-semibold text-gray-900">
+            予約詳細
+          </h3>
+          <button
+            @click="closeModal"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- モーダルコンテンツ -->
+        <div v-if="selectedReservation" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- 予約情報 -->
+          <div>
+            <h4 class="text-md font-medium text-gray-900 mb-4">予約情報</h4>
+            
+            <div class="space-y-3">
+              <div>
+                <span class="text-sm text-gray-500">サービス名</span>
+                <p class="font-medium">{{ selectedReservation.serviceName }}</p>
+              </div>
+              
+              <div>
+                <span class="text-sm text-gray-500">店舗名</span>
+                <p class="font-medium">{{ selectedReservation.storeName }}</p>
+              </div>
+              
+              <div>
+                <span class="text-sm text-gray-500">日時</span>
+                <p class="font-medium">{{ formatDateTime(selectedReservation.startTime) }}</p>
+              </div>
+              
+              <div>
+                <span class="text-sm text-gray-500">所要時間</span>
+                <p class="font-medium">{{ selectedReservation.durationMinutes }}分</p>
+              </div>
+              
+              <div>
+                <span class="text-sm text-gray-500">料金</span>
+                <p class="font-medium">¥{{ selectedReservation.price.toLocaleString() }}</p>
+              </div>
+              
+              <div>
+                <span class="text-sm text-gray-500">ステータス</span>
+                <span
+                  :class="{
+                    'bg-orange-100 text-orange-800': selectedReservation.status === 'pending',
+                    'bg-green-100 text-green-800': selectedReservation.status === 'confirmed',
+                    'bg-red-100 text-red-800': selectedReservation.status === 'cancelled'
+                  }"
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                >
+                  {{ getStatusText(selectedReservation.status) }}
+                </span>
+              </div>
+              
+              <div v-if="selectedReservation.notes">
+                <span class="text-sm text-gray-500">備考</span>
+                <p class="font-medium">{{ selectedReservation.notes }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- チャットセクション -->
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <h4 class="text-md font-medium text-gray-900 mb-4">チャット</h4>
+            
+            <!-- メッセージ一覧 -->
+            <div class="h-64 overflow-y-auto bg-white rounded border p-3 mb-3">
+              <div v-if="loadingMessages" class="text-center text-gray-500">
+                メッセージを読み込み中...
+              </div>
+              
+              <div v-else-if="messages.length === 0" class="text-center text-gray-500">
+                まだメッセージがありません
+              </div>
+              
+              <div v-else class="space-y-2">
+                <div
+                  v-for="message in messages"
+                  :key="message.id"
+                  :class="(message.sender_type || message.senderType) === 'customer' ? 'text-right' : 'text-left'"
+                  class="pb-2 border-b border-gray-200 last:border-b-0"
+                >
+                  <div
+                    :class="(message.sender_type || message.senderType) === 'customer' ? 'bg-blue-100 text-blue-900' : 'bg-gray-100 text-gray-900'"
+                    class="inline-block px-3 py-2 rounded-lg max-w-xs"
+                  >
+                    <p class="text-sm">{{ message.message }}</p>
+                    <p class="text-xs text-gray-500 mt-1">
+                      {{ message.sender_name || message.senderName }} - {{ formatDateTime(message.createdAt || message.created_at) }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- メッセージ送信フォーム -->
+            <form @submit.prevent="sendMessage" class="flex gap-2">
+              <input
+                v-model="newMessage"
+                type="text"
+                placeholder="メッセージを入力..."
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                :disabled="sendingMessage"
+              >
+              <button
+                type="submit"
+                :disabled="!newMessage.trim() || sendingMessage"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ sendingMessage ? '送信中...' : '送信' }}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -169,6 +311,14 @@ const loading = ref(false)
 const error = ref('')
 const offset = ref(0)
 const limit = 20
+
+// モーダル関連
+const showModal = ref(false)
+const selectedReservation = ref(null)
+const messages = ref([])
+const newMessage = ref('')
+const loadingMessages = ref(false)
+const sendingMessage = ref(false)
 
 // 予約履歴を取得
 const loadReservations = async (reset = true) => {
@@ -244,6 +394,8 @@ const canCancel = (startTime) => {
 // ステータステキスト取得
 const getStatusText = (status) => {
   switch (status) {
+    case 'pending':
+      return '承認待ち'
     case 'confirmed':
       return '確定'
     case 'cancelled':
@@ -272,6 +424,71 @@ const formatDate = (dateString) => {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
+  })
+}
+
+// 詳細モーダル表示
+const showDetails = async (reservation) => {
+  selectedReservation.value = reservation
+  showModal.value = true
+  await loadMessages()
+}
+
+// モーダル閉じる
+const closeModal = () => {
+  showModal.value = false
+  selectedReservation.value = null
+  messages.value = []
+  newMessage.value = ''
+}
+
+// メッセージ読み込み
+const loadMessages = async () => {
+  if (!selectedReservation.value) return
+  
+  loadingMessages.value = true
+  try {
+    const response = await $fetch(`/api/reservations/${selectedReservation.value.id}/messages`, {
+      credentials: 'include'
+    })
+    messages.value = response.messages || []
+  } catch (err) {
+    console.error('メッセージの読み込みに失敗しました:', err)
+    messages.value = []
+  } finally {
+    loadingMessages.value = false
+  }
+}
+
+// メッセージ送信
+const sendMessage = async () => {
+  if (!newMessage.value.trim() || !selectedReservation.value) return
+  
+  sendingMessage.value = true
+  try {
+    await $fetch(`/api/reservations/${selectedReservation.value.id}/messages`, {
+      method: 'POST',
+      credentials: 'include',
+      body: {
+        message: newMessage.value.trim()
+      }
+    })
+    
+    newMessage.value = ''
+    await loadMessages()
+  } catch (err) {
+    alert(err.data?.message || 'メッセージの送信に失敗しました')
+  } finally {
+    sendingMessage.value = false
+  }
+}
+
+// 時刻フォーマット
+const formatTime = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleTimeString('ja-JP', {
+    hour: '2-digit',
+    minute: '2-digit'
   })
 }
 
