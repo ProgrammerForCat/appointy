@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     if (!authUser) {
       throw createError({
         statusCode: 401,
-        statusMessage: '認証が必要です'
+        message: '認証が必要です'
       })
     }
     
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     if (!formData || formData.length === 0) {
       throw createError({
         statusCode: 400,
-        statusMessage: '画像ファイルが見つかりません'
+        message: '画像ファイルが見つかりません'
       })
     }
     
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     if (!imageFile) {
       throw createError({
         statusCode: 400,
-        statusMessage: '画像ファイルが見つかりません'
+        message: '画像ファイルが見つかりません'
       })
     }
     
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     if (!imageFile.type || !imageFile.type.startsWith('image/')) {
       throw createError({
         statusCode: 400,
-        statusMessage: '画像ファイルのみアップロード可能です'
+        message: '画像ファイルのみアップロード可能です'
       })
     }
     
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
     if (imageFile.data.length > 5 * 1024 * 1024) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'ファイルサイズは5MB以下にしてください'
+        message: 'ファイルサイズは5MB以下にしてください'
       })
     }
     
@@ -95,7 +95,7 @@ export default defineEventHandler(async (event) => {
     console.error('プロフィール画像アップロードエラー:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'サーバーエラーが発生しました'
+      message: 'サーバーエラーが発生しました'
     })
   }
 })
