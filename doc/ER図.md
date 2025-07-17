@@ -63,7 +63,9 @@ erDiagram
 | id | INTEGER | PRIMARY KEY AUTOINCREMENT | 自動採番の一意識別子 |
 | name | TEXT | NOT NULL | ユーザーの名前 |
 | email | TEXT | UNIQUE, NOT NULL | ログイン用メールアドレス |
+| phone | TEXT | NULL | 電話番号 |
 | hashed_password | TEXT | NOT NULL | bcryptでハッシュ化されたパスワード |
+| profile_image_key | TEXT | NULL | R2に保存されたユーザープロフィール画像のキー |
 | created_at | DATETIME | NOT NULL | レコード作成日時 |
 | updated_at | DATETIME | NOT NULL | レコード更新日時 |
 
@@ -74,7 +76,7 @@ erDiagram
 | user_id | INTEGER | UNIQUE, FOREIGN KEY, NOT NULL | ユーザーID（users.idへの外部キー、1対1関係） |
 | store_name | TEXT | NOT NULL | 店舗名 |
 | description | TEXT | NULL | 店舗の説明 |
-| profile_image_key | TEXT | NULL | R2に保存されたプロフィール画像のキー |
+| profile_image_key | TEXT | NULL | R2に保存された店舗プロフィール画像のキー |
 | business_hours | TEXT | NULL | 営業時間（JSON形式） |
 | created_at | DATETIME | NOT NULL | レコード作成日時 |
 | updated_at | DATETIME | NOT NULL | レコード更新日時 |

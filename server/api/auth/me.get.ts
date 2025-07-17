@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     if (!authUser) {
       throw createError({
         statusCode: 401,
-        statusMessage: '認証が必要です'
+        message: '認証が必要です'
       })
     }
     
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     if (!user) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'ユーザーが見つかりません'
+        message: 'ユーザーが見つかりません'
       })
     }
     
@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
     console.error('ユーザー情報取得エラー:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'サーバーエラーが発生しました'
+      message: 'サーバーエラーが発生しました'
     })
   }
 })

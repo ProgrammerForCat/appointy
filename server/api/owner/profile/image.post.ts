@@ -1,5 +1,6 @@
 import { requireAuth } from '~/server/utils/auth'
-import { execute } from '~/server/database'
+import { execute, queryOne } from '~/server/database'
+import type { Store } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -8,7 +9,20 @@ export default defineEventHandler(async (event) => {
     if (!authUser) {
       throw createError({
         statusCode: 401,
-        statusMessage: '認証が必要です'
+        message: '認証が必要です'
+      })
+    }
+    
+    // 店舗情報を取得
+    const store = queryOne(
+      'SELECT * FROM stores WHERE user_id = ?',
+      [authUser.userId]
+    ) as Store | undefined
+    
+    if (!store) {
+      throw createError({
+        statusCode: 404,
+        message: '店舗が見つかりません'
       })
     }
     
@@ -17,7 +31,7 @@ export default defineEventHandler(async (event) => {
     if (!formData || formData.length === 0) {
       throw createError({
         statusCode: 400,
-        statusMessage: '画像ファイルが見つかりません'
+        message: '画像ファイルが見つかりません'
       })
     }
     
@@ -25,7 +39,7 @@ export default defineEventHandler(async (event) => {
     if (!imageFile) {
       throw createError({
         statusCode: 400,
-        statusMessage: '画像ファイルが見つかりません'
+        message: '画像ファイルが見つかりません'
       })
     }
     
@@ -33,7 +47,7 @@ export default defineEventHandler(async (event) => {
     if (!imageFile.type || !imageFile.type.startsWith('image/')) {
       throw createError({
         statusCode: 400,
-        statusMessage: '画像ファイルのみアップロード可能です'
+        message: '画像ファイルのみアップロード可能です'
       })
     }
     
@@ -41,14 +55,14 @@ export default defineEventHandler(async (event) => {
     if (imageFile.data.length > 5 * 1024 * 1024) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'ファイルサイズは5MB以下にしてください'
+        message: 'ファイルサイズは5MB以下にしてください'
       })
     }
     
     // 画像キーを生成
     const fileExtension = imageFile.type.split('/')[1]
     const timestamp = Date.now()
-    const imageKey = `user-${authUser.userId}-${timestamp}.${fileExtension}`
+    const imageKey = `store-${store.id}-${timestamp}.${fileExtension}`
     
     // AWS SDKを動的インポート
     const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3').then(m => m)
@@ -76,8 +90,8 @@ export default defineEventHandler(async (event) => {
     
     // データベースに画像キーを保存
     execute(
-      'UPDATE users SET profile_image_key = ? WHERE id = ?',
-      [imageKey, authUser.userId]
+      'UPDATE stores SET profile_image_key = ? WHERE id = ?',
+      [imageKey, store.id]
     )
     
     const imageUrl = `${process.env.R2_PUBLIC_URL || 'http://localhost:9000/appointy'}/${imageKey}`
@@ -95,7 +109,7 @@ export default defineEventHandler(async (event) => {
     console.error('画像アップロードURL生成エラー:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'サーバーエラーが発生しました'
+      message: 'サーバーエラーが発生しました'
     })
   }
 })

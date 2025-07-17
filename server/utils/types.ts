@@ -63,6 +63,7 @@ export interface BusinessHours {
 export interface JWTPayload {
   userId: number
   email: string
+  storeId?: number
   exp: number
 }
 

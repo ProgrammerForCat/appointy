@@ -1,7 +1,7 @@
 import { requireAuth } from '~/server/utils/auth'
 import { ProfileUpdateSchema } from '~/server/utils/validation'
 import { execute, queryOne } from '~/server/database'
-import type { User, BusinessHours } from '~/server/utils/types'
+import type { Store, BusinessHours } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -10,7 +10,20 @@ export default defineEventHandler(async (event) => {
     if (!authUser) {
       throw createError({
         statusCode: 401,
-        statusMessage: '認証が必要です'
+        message: '認証が必要です'
+      })
+    }
+    
+    // 店舗情報を取得
+    const store = queryOne(
+      'SELECT * FROM stores WHERE user_id = ?',
+      [authUser.userId]
+    ) as Store | undefined
+    
+    if (!store) {
+      throw createError({
+        statusCode: 404,
+        message: '店舗が見つかりません'
       })
     }
     
@@ -21,7 +34,7 @@ export default defineEventHandler(async (event) => {
     if (!validation.success) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'バリデーションエラー',
+        message: 'バリデーションエラー',
         data: validation.error.issues
       })
     }
@@ -33,7 +46,7 @@ export default defineEventHandler(async (event) => {
     const updateValues: any[] = []
     
     if (name !== undefined) {
-      updateFields.push('name = ?')
+      updateFields.push('store_name = ?')
       updateValues.push(name)
     }
     
@@ -50,30 +63,30 @@ export default defineEventHandler(async (event) => {
     if (updateFields.length === 0) {
       throw createError({
         statusCode: 400,
-        statusMessage: '更新するフィールドがありません'
+        message: '更新するフィールドがありません'
       })
     }
     
-    // ユーザーIDを最後に追加
-    updateValues.push(authUser.userId)
+    // 店舗IDを最後に追加
+    updateValues.push(store.id)
     
     // プロフィールを更新
     execute(
-      `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`,
+      `UPDATE stores SET ${updateFields.join(', ')} WHERE id = ?`,
       updateValues
     )
     
-    // 更新されたユーザー情報を取得
-    const updatedUser = queryOne(
-      'SELECT * FROM users WHERE id = ?',
-      [authUser.userId]
-    ) as User
+    // 更新された店舗情報を取得
+    const updatedStore = queryOne(
+      'SELECT * FROM stores WHERE id = ?',
+      [store.id]
+    ) as Store
     
     // business_hoursをパース
     let businessHours: BusinessHours | undefined
-    if (updatedUser.business_hours) {
+    if (updatedStore.business_hours) {
       try {
-        businessHours = JSON.parse(updatedUser.business_hours)
+        businessHours = JSON.parse(updatedStore.business_hours)
       } catch (error) {
         console.error('営業時間のパースエラー:', error)
       }
@@ -81,12 +94,11 @@ export default defineEventHandler(async (event) => {
     
     // レスポンス
     return {
-      id: updatedUser.id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      description: updatedUser.description,
-      profileImageUrl: updatedUser.profile_image_key 
-        ? `${process.env.R2_PUBLIC_URL || '/uploads'}/${updatedUser.profile_image_key}`
+      id: updatedStore.id,
+      name: updatedStore.store_name,
+      description: updatedStore.description,
+      profileImageUrl: updatedStore.profile_image_key 
+        ? `${process.env.R2_PUBLIC_URL || '/uploads'}/${updatedStore.profile_image_key}`
         : null,
       businessHours
     }
@@ -98,7 +110,7 @@ export default defineEventHandler(async (event) => {
     console.error('プロフィール更新エラー:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'サーバーエラーが発生しました'
+      message: 'サーバーエラーが発生しました'
     })
   }
 })

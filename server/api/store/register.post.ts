@@ -1,4 +1,4 @@
-import { requireAuth } from '~/server/utils/auth'
+import { requireAuth, generateToken } from '~/server/utils/auth'
 import { queryOne, execute } from '~/server/database'
 import type { Store } from '~/server/utils/types'
 
@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     if (!authUser) {
       throw createError({
         statusCode: 401,
-        statusMessage: '認証が必要です'
+        message: '認証が必要です'
       })
     }
     
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     if (existingStore) {
       throw createError({
         statusCode: 409,
-        statusMessage: '既に店舗を登録済みです'
+        message: '既に店舗を登録済みです'
       })
     }
     
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     if (!body.storeName || body.storeName.trim() === '') {
       throw createError({
         statusCode: 400,
-        statusMessage: '店舗名は必須です'
+        message: '店舗名は必須です'
       })
     }
     
@@ -76,6 +76,21 @@ export default defineEventHandler(async (event) => {
       }
     }
     
+    // 新しいJWTトークンを生成（storeIdを含める）
+    const newToken = generateToken({
+      userId: authUser.userId,
+      email: authUser.email,
+      storeId: storeId
+    })
+    
+    // クッキーを更新
+    setCookie(event, 'auth-token', newToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7 // 7日間
+    })
+    
     // レスポンス
     return {
       store: {
@@ -83,7 +98,8 @@ export default defineEventHandler(async (event) => {
         storeName: body.storeName.trim(),
         description: body.description || '',
         businessHours: JSON.parse(businessHours)
-      }
+      },
+      token: newToken
     }
   } catch (error) {
     if (error.statusCode) {
@@ -93,7 +109,7 @@ export default defineEventHandler(async (event) => {
     console.error('店舗登録エラー:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'サーバーエラーが発生しました'
+      message: 'サーバーエラーが発生しました'
     })
   }
 })

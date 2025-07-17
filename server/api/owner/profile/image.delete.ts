@@ -1,5 +1,6 @@
 import { requireAuth } from '~/server/utils/auth'
-import { execute } from '~/server/database'
+import { execute, queryOne } from '~/server/database'
+import type { Store } from '~/server/utils/types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -8,14 +9,27 @@ export default defineEventHandler(async (event) => {
     if (!authUser) {
       throw createError({
         statusCode: 401,
-        statusMessage: '認証が必要です'
+        message: '認証が必要です'
+      })
+    }
+    
+    // 店舗情報を取得
+    const store = queryOne(
+      'SELECT * FROM stores WHERE user_id = ?',
+      [authUser.userId]
+    ) as Store | undefined
+    
+    if (!store) {
+      throw createError({
+        statusCode: 404,
+        message: '店舗が見つかりません'
       })
     }
     
     // プロフィール画像キーを削除
     execute(
-      'UPDATE users SET profile_image_key = NULL WHERE id = ?',
-      [authUser.userId]
+      'UPDATE stores SET profile_image_key = NULL WHERE id = ?',
+      [store.id]
     )
     
     // 204 No Content
@@ -29,7 +43,7 @@ export default defineEventHandler(async (event) => {
     console.error('プロフィール画像削除エラー:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'サーバーエラーが発生しました'
+      message: 'サーバーエラーが発生しました'
     })
   }
 })

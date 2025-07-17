@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     if (!validation.success) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'バリデーションエラー',
+        message: 'バリデーションエラー',
         data: validation.error.issues
       })
     }
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     if (!user) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'メールアドレスまたはパスワードが間違っています'
+        message: 'メールアドレスまたはパスワードが間違っています'
       })
     }
     
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     if (!isValidPassword) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'メールアドレスまたはパスワードが間違っています'
+        message: 'メールアドレスまたはパスワードが間違っています'
       })
     }
     
@@ -50,7 +50,8 @@ export default defineEventHandler(async (event) => {
     // JWTトークンを生成
     const token = generateToken({
       userId: user.id,
-      email: user.email
+      email: user.email,
+      storeId: store?.id
     })
     
     // HTTPOnly Cookieにトークンを設定
@@ -88,7 +89,7 @@ export default defineEventHandler(async (event) => {
     console.error('ログインエラー:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'サーバーエラーが発生しました'
+      message: 'サーバーエラーが発生しました'
     })
   }
 })
