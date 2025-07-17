@@ -12,9 +12,38 @@
         </div>
       </div>
 
-      <!-- カテゴリフィルター -->
+      <!-- 検索・フィルター -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-3">カテゴリから探す</h2>
+        <!-- フリーワード検索 -->
+        <div class="mb-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-3">サービスを検索</h2>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="サービス名、店舗名で検索..."
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+            <button
+              v-if="searchQuery"
+              @click="searchQuery = ''"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- カテゴリフィルター -->
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900 mb-3">カテゴリから探す</h2>
         <div class="flex flex-wrap gap-2">
           <button
             @click="selectedCategory = ''"
@@ -33,12 +62,13 @@
             {{ category }}
           </button>
         </div>
+        </div>
       </div>
 
       <!-- サービス一覧 -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-8">
         <h2 class="text-xl font-bold text-gray-900 mb-4">
-          {{ selectedCategory ? `${selectedCategory}のサービス` : '提供サービス' }}
+          {{ getResultTitle() }}
           <span class="text-sm text-gray-500">({{ filteredServices.length }}件)</span>
         </h2>
         <div v-if="filteredServices.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -60,7 +90,7 @@
           </NuxtLink>
         </div>
         <div v-else class="text-gray-500 text-center py-8">
-          {{ selectedCategory ? `${selectedCategory}のサービスはありません。` : '現在、提供可能なサービスはありません。' }}
+          {{ getNoResultMessage() }}
         </div>
       </div>
 
@@ -108,6 +138,10 @@ const determineHeaderMode = () => {
 // データの定義
 const services = ref([])
 
+// 検索・フィルター関連
+const searchQuery = ref('')
+const selectedCategory = ref('')
+
 // カテゴリ関連
 const categories = ref([
   '美容・ヘアケア',
@@ -118,15 +152,57 @@ const categories = ref([
   'コンサルティング',
   'その他'
 ])
-const selectedCategory = ref('')
 
 // 計算プロパティ
 const filteredServices = computed(() => {
-  if (!selectedCategory.value) {
-    return services.value
+  let filtered = services.value
+  
+  // 検索クエリでフィルタリング
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    filtered = filtered.filter(service => 
+      service.name.toLowerCase().includes(query) ||
+      service.storeName.toLowerCase().includes(query) ||
+      (service.description && service.description.toLowerCase().includes(query)) ||
+      (service.category && service.category.toLowerCase().includes(query))
+    )
   }
-  return services.value.filter(service => service.category === selectedCategory.value)
+  
+  // カテゴリでフィルタリング
+  if (selectedCategory.value) {
+    filtered = filtered.filter(service => service.category === selectedCategory.value)
+  }
+  
+  return filtered
 })
+
+// 結果タイトルを取得
+const getResultTitle = () => {
+  if (searchQuery.value.trim()) {
+    if (selectedCategory.value) {
+      return `「${searchQuery.value}」の検索結果（${selectedCategory.value}）`
+    }
+    return `「${searchQuery.value}」の検索結果`
+  }
+  if (selectedCategory.value) {
+    return `${selectedCategory.value}のサービス`
+  }
+  return '提供サービス'
+}
+
+// 結果なしメッセージを取得
+const getNoResultMessage = () => {
+  if (searchQuery.value.trim()) {
+    if (selectedCategory.value) {
+      return `「${searchQuery.value}」に該当する${selectedCategory.value}のサービスはありません。`
+    }
+    return `「${searchQuery.value}」に該当するサービスはありません。`
+  }
+  if (selectedCategory.value) {
+    return `${selectedCategory.value}のサービスはありません。`
+  }
+  return '現在、提供可能なサービスはありません。'
+}
 
 // 初期データの取得
 onMounted(async () => {

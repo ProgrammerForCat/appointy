@@ -60,6 +60,19 @@ paths:
     get:
       summary: 全店舗サービス一覧取得
       description: 全店舗の利用可能なサービス一覧を取得する（認証不要、店舗名含む）
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            example: カウンセリング
+          description: サービス名、店舗名、説明文での検索
+        - name: category
+          in: query
+          schema:
+            type: string
+            example: コンサルティング
+          description: カテゴリでの絞り込み
       responses:
         200:
           description: サービス一覧取得成功
@@ -94,6 +107,12 @@ paths:
                         storeDescription:
                           type: string
                           example: "10年以上の経験を持つカウンセラーです"
+                        category:
+                          type: string
+                          example: "コンサルティング"
+                        description:
+                          type: string
+                          example: "心の悩みから人生相談まで幅広く対応"
 
   /services/{serviceId}:
     get:
@@ -224,9 +243,12 @@ paths:
                     type: string
                     format: date-time
                     example: 2024-01-15T11:00:00Z
+                  status:
+                    type: string
+                    example: pending
                   message:
                     type: string
-                    example: 予約が完了しました
+                    example: 予約申込みが完了しました。店舗からの承認をお待ちください。
         400:
           description: バリデーションエラー
           content:

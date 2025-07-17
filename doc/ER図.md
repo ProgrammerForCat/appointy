@@ -45,14 +45,25 @@ erDiagram
         datetime start_time "開始日時"
         datetime end_time "終了日時"
         text status "予約ステータス"
+        datetime confirmed_at "承認日時"
         datetime created_at "作成日時"
         datetime updated_at "更新日時"
+    }
+
+    reservation_messages {
+        integer id PK "AUTO_INCREMENT"
+        integer reservation_id FK "予約ID"
+        text sender_type "送信者種別"
+        text sender_name "送信者名"
+        text message "メッセージ内容"
+        datetime created_at "作成日時"
     }
 
     users ||--o| stores : "店舗運営（任意）"
     stores ||--o{ services : "提供"
     services ||--o{ reservations : "予約される"
     users ||--o{ reservations : "予約する"
+    reservations ||--o{ reservation_messages : "メッセージ"
 ```
 
 ## テーブル詳細
@@ -102,9 +113,20 @@ erDiagram
 | customer_id | INTEGER | FOREIGN KEY, NOT NULL | 顧客ID（users.idへの外部キー） |
 | start_time | DATETIME | NOT NULL | 予約開始日時（ISO 8601形式） |
 | end_time | DATETIME | NOT NULL | 予約終了日時（ISO 8601形式） |
-| status | TEXT | NOT NULL DEFAULT 'confirmed' | 予約ステータス（confirmed/cancelled） |
+| status | TEXT | NOT NULL DEFAULT 'pending' | 予約ステータス（pending/confirmed/cancelled） |
+| confirmed_at | DATETIME | NULL | 承認日時 |
 | created_at | DATETIME | NOT NULL | レコード作成日時 |
 | updated_at | DATETIME | NOT NULL | レコード更新日時 |
+
+### reservation_messagesテーブル（予約メッセージ）
+| カラム名 | データ型 | 制約 | 説明 |
+|---------|---------|------|------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT | メッセージID |
+| reservation_id | INTEGER | FOREIGN KEY, NOT NULL | 予約ID（reservations.idへの外部キー） |
+| sender_type | TEXT | NOT NULL | 送信者種別（owner/customer） |
+| sender_name | TEXT | NOT NULL | 送信者名 |
+| message | TEXT | NOT NULL | メッセージ内容 |
+| created_at | DATETIME | NOT NULL | レコード作成日時 |
 
 ## インデックス設計
 
@@ -124,6 +146,10 @@ CREATE INDEX idx_reservations_service_id ON reservations(service_id);
 CREATE INDEX idx_reservations_customer_id ON reservations(customer_id);
 CREATE INDEX idx_reservations_start_time ON reservations(start_time);
 CREATE INDEX idx_reservations_status ON reservations(status);
+
+-- 予約メッセージ検索用
+CREATE INDEX idx_reservation_messages_reservation_id ON reservation_messages(reservation_id);
+CREATE INDEX idx_reservation_messages_created_at ON reservation_messages(created_at);
 ```
 
 ## 営業時間（business_hours）のJSON形式

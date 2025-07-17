@@ -28,6 +28,18 @@ paths:
             type: string
             format: date
             example: 2024-01-31
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, cancelled]
+            example: pending
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+            example: 2024-01-15
       responses:
         200:
           description: 予約一覧取得成功
@@ -90,6 +102,131 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /reservations/{reservationId}/confirm:
+    put:
+      summary: 予約承認
+      description: 待機中の予約を承認する
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reservationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: 予約承認成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDetail'
+        404:
+          description: 予約が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /reservations/{reservationId}/reject:
+    put:
+      summary: 予約拒否
+      description: 待機中の予約を拒否する
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reservationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  example: 店舗都合によりキャンセル
+      responses:
+        200:
+          description: 予約拒否成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDetail'
+        404:
+          description: 予約が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+servers:
+  - url: /api/reservations
+    description: 予約メッセージAPI
+
+paths:
+  /{reservationId}/messages:
+    get:
+      summary: 予約メッセージ一覧取得
+      description: 予約に関するメッセージ一覧を取得する
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reservationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: メッセージ一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+
+    post:
+      summary: メッセージ送信
+      description: 予約に関するメッセージを送信する
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reservationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: よろしくお願いします
+      responses:
+        200:
+          description: メッセージ送信成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
 components:
   schemas:
     Reservation:
@@ -117,8 +254,8 @@ components:
           example: 2024-01-15T11:00:00Z
         status:
           type: string
-          enum: [confirmed, cancelled]
-          example: confirmed
+          enum: [pending, confirmed, cancelled]
+          example: pending
         createdAt:
           type: string
           format: date-time
@@ -154,6 +291,30 @@ components:
         code:
           type: string
           example: NOT_FOUND
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        reservationId:
+          type: integer
+          example: 1
+        senderType:
+          type: string
+          enum: [owner, customer]
+          example: owner
+        senderName:
+          type: string
+          example: 店舗オーナー
+        message:
+          type: string
+          example: よろしくお願いします
+        createdAt:
+          type: string
+          format: date-time
+          example: 2024-01-01T00:00:00Z
 
   securitySchemes:
     bearerAuth:
