@@ -45,8 +45,11 @@
               <button 
                 v-if="currentUser && currentUser.hasStore"
                 @click="switchToOwnerMode"
-                :class="[linkClasses, 'bg-blue-100 text-blue-700 px-3 py-1 rounded-md']"
+                :class="[linkClasses, 'bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-600 shadow-md']"
               >
+                <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
                 店舗モードへ
               </button>
               <button 
@@ -94,8 +97,11 @@
             </NuxtLink>
             <button 
               @click="switchToCustomerMode"
-              :class="[linkClasses, 'bg-white bg-opacity-20 px-3 py-1 rounded-md']"
+              :class="[linkClasses, 'bg-gradient-to-r from-white/20 to-white/10 border border-white/20 px-4 py-2 rounded-lg hover:from-white/30 hover:to-white/20']"
             >
+              <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
               お客さまモードへ
             </button>
             <button 
@@ -148,7 +154,7 @@ const currentUser = ref(null)
 const headerClasses = computed(() => {
   switch (props.userType) {
     case 'owner':
-      return 'bg-blue-600 text-white'
+      return 'bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 text-white shadow-xl'
     case 'dashboard':
       return 'bg-white shadow'
     default:
@@ -158,14 +164,14 @@ const headerClasses = computed(() => {
 
 const logoClasses = computed(() => {
   return props.userType === 'owner' 
-    ? 'text-xl font-bold' 
+    ? 'text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent' 
     : 'text-xl font-bold text-gray-900'
 })
 
 const linkClasses = computed(() => {
   switch (props.userType) {
     case 'owner':
-      return 'hover:text-blue-200'
+      return 'text-white/90 hover:text-white font-medium transition-all duration-200 hover:bg-white/10 px-3 py-2 rounded-lg'
     case 'dashboard':
       return 'text-gray-700 hover:text-gray-900 transition-colors cursor-pointer'
     default:

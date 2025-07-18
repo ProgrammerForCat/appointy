@@ -1,16 +1,16 @@
 <template>
-  <div>
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-gray-50 to-slate-100">
     <div class="space-y-6">
       <!-- ヘッダー -->
-      <div class="bg-white shadow rounded-lg p-6">
+      <div class="bg-white backdrop-blur-sm border border-gray-300 rounded-2xl shadow-xl p-8">
         <div class="flex justify-between items-center">
-          <h1 class="text-2xl font-bold text-gray-900">予約管理</h1>
+          <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">予約管理</h1>
           <div class="flex space-x-4">
             <!-- フィルター -->
             <select
               v-model="statusFilter"
               @change="loadReservations"
-              class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-200"
             >
               <option value="">全てのステータス</option>
               <option value="pending">承認待ち</option>
@@ -23,12 +23,12 @@
               v-model="dateFilter"
               @change="loadReservations"
               type="date"
-              class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-200"
             >
             
             <button
               @click="clearFilters"
-              class="px-4 py-2 text-gray-600 hover:text-gray-900"
+              class="px-4 py-3 text-blue-600 hover:text-blue-500 transition-colors"
             >
               フィルターをクリア
             </button>
@@ -36,105 +36,120 @@
         </div>
         
         <!-- 統計情報 -->
-        <div class="mt-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-5 gap-4">
           <div 
             @click="toggleStat('today')"
-            :class="{'ring-2 ring-blue-500': selectedStat === 'today'}"
-            class="bg-blue-50 p-4 rounded-lg cursor-pointer hover:bg-blue-100 transition-all"
+            :class="{'ring-2 ring-blue-500 shadow-lg': selectedStat === 'today'}"
+            class="group relative bg-white backdrop-blur-sm border border-gray-300 rounded-xl p-5 cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-lg"
           >
-            <div class="flex justify-between items-start">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl"></div>
+            <div class="relative flex justify-between items-start">
               <div>
-                <div class="text-blue-600 text-sm font-medium">今日の予約</div>
-                <div class="text-2xl font-bold text-blue-900">{{ todayCount }}</div>
+                <div class="text-blue-600 text-sm font-medium mb-1">今日の予約</div>
+                <div class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{{ todayCount }}</div>
               </div>
-              <svg 
-                v-if="selectedStat === 'today'"
-                class="w-5 h-5 text-blue-600"
-                fill="currentColor" 
-                viewBox="0 0 20 20"
-              >
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
+              <div class="bg-gradient-to-r from-blue-500 to-purple-500 rounded-full p-1">
+                <svg 
+                  v-if="selectedStat === 'today'"
+                  class="w-4 h-4 text-white"
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </div>
             </div>
           </div>
           <div 
             @click="toggleStat('pending')"
-            :class="{'ring-2 ring-orange-500': selectedStat === 'pending'}"
-            class="bg-orange-50 p-4 rounded-lg cursor-pointer hover:bg-orange-100 transition-all"
+            :class="{'ring-2 ring-orange-500 shadow-lg': selectedStat === 'pending'}"
+            class="group relative bg-white backdrop-blur-sm border border-gray-300 rounded-xl p-5 cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-lg"
           >
-            <div class="flex justify-between items-start">
+            <div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-yellow-500/10 rounded-xl"></div>
+            <div class="relative flex justify-between items-start">
               <div>
-                <div class="text-orange-600 text-sm font-medium">承認待ち</div>
-                <div class="text-2xl font-bold text-orange-900">{{ pendingCount }}</div>
+                <div class="text-orange-600 text-sm font-medium mb-1">承認待ち</div>
+                <div class="text-2xl font-bold bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent">{{ pendingCount }}</div>
               </div>
-              <svg 
-                v-if="selectedStat === 'pending'"
-                class="w-5 h-5 text-orange-600"
-                fill="currentColor" 
-                viewBox="0 0 20 20"
-              >
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
+              <div class="bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full p-1">
+                <svg 
+                  v-if="selectedStat === 'pending'"
+                  class="w-4 h-4 text-white"
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </div>
             </div>
           </div>
           <div 
             @click="toggleStat('confirmed')"
-            :class="{'ring-2 ring-green-500': selectedStat === 'confirmed'}"
-            class="bg-green-50 p-4 rounded-lg cursor-pointer hover:bg-green-100 transition-all"
+            :class="{'ring-2 ring-green-500 shadow-lg': selectedStat === 'confirmed'}"
+            class="group relative bg-white backdrop-blur-sm border border-gray-300 rounded-xl p-5 cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-lg"
           >
-            <div class="flex justify-between items-start">
+            <div class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-blue-500/10 rounded-xl"></div>
+            <div class="relative flex justify-between items-start">
               <div>
-                <div class="text-green-600 text-sm font-medium">確定予約</div>
-                <div class="text-2xl font-bold text-green-900">{{ confirmedCount }}</div>
+                <div class="text-green-600 text-sm font-medium mb-1">確定予約</div>
+                <div class="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">{{ confirmedCount }}</div>
               </div>
-              <svg 
-                v-if="selectedStat === 'confirmed'"
-                class="w-5 h-5 text-green-600"
-                fill="currentColor" 
-                viewBox="0 0 20 20"
-              >
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
+              <div class="bg-gradient-to-r from-green-500 to-blue-500 rounded-full p-1">
+                <svg 
+                  v-if="selectedStat === 'confirmed'"
+                  class="w-4 h-4 text-white"
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </div>
             </div>
           </div>
           <div 
             @click="toggleStat('cancelled')"
-            :class="{'ring-2 ring-red-500': selectedStat === 'cancelled'}"
-            class="bg-red-50 p-4 rounded-lg cursor-pointer hover:bg-red-100 transition-all"
+            :class="{'ring-2 ring-red-500 shadow-lg': selectedStat === 'cancelled'}"
+            class="group relative bg-white backdrop-blur-sm border border-gray-300 rounded-xl p-5 cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-lg"
           >
-            <div class="flex justify-between items-start">
+            <div class="absolute inset-0 bg-gradient-to-br from-red-500/10 to-pink-500/10 rounded-xl"></div>
+            <div class="relative flex justify-between items-start">
               <div>
-                <div class="text-red-600 text-sm font-medium">キャンセル</div>
-                <div class="text-2xl font-bold text-red-900">{{ cancelledCount }}</div>
+                <div class="text-red-600 text-sm font-medium mb-1">キャンセル</div>
+                <div class="text-2xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">{{ cancelledCount }}</div>
               </div>
-              <svg 
-                v-if="selectedStat === 'cancelled'"
-                class="w-5 h-5 text-red-600"
-                fill="currentColor" 
-                viewBox="0 0 20 20"
-              >
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
+              <div class="bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-1">
+                <svg 
+                  v-if="selectedStat === 'cancelled'"
+                  class="w-4 h-4 text-white"
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </div>
             </div>
           </div>
           <div 
             @click="toggleStat('total')"
-            :class="{'ring-2 ring-purple-500': selectedStat === 'total'}"
-            class="bg-purple-50 p-4 rounded-lg cursor-pointer hover:bg-purple-100 transition-all"
+            :class="{'ring-2 ring-purple-500 shadow-lg': selectedStat === 'total'}"
+            class="group relative bg-white backdrop-blur-sm border border-gray-300 rounded-xl p-5 cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-lg"
           >
-            <div class="flex justify-between items-start">
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl"></div>
+            <div class="relative flex justify-between items-start">
               <div>
-                <div class="text-purple-600 text-sm font-medium">総予約数</div>
-                <div class="text-2xl font-bold text-purple-900">{{ totalCount }}</div>
+                <div class="text-purple-600 text-sm font-medium mb-1">総予約数</div>
+                <div class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{{ totalCount }}</div>
               </div>
-              <svg 
-                v-if="selectedStat === 'total'"
-                class="w-5 h-5 text-purple-600"
-                fill="currentColor" 
-                viewBox="0 0 20 20"
-              >
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
+              <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-1">
+                <svg 
+                  v-if="selectedStat === 'total'"
+                  class="w-4 h-4 text-white"
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
@@ -142,10 +157,10 @@
       </div>
 
       <!-- 予約一覧 -->
-      <div class="bg-white shadow rounded-lg">
-        <div class="px-6 py-4 border-b border-gray-200">
+      <div class="bg-white backdrop-blur-sm border border-gray-300 rounded-2xl shadow-xl">
+        <div class="px-8 py-6 border-b border-gray-200/50">
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-medium text-gray-900">
+            <h2 class="text-2xl font-bold text-gray-900">
               予約一覧
               <span v-if="selectedStat" class="text-sm text-gray-500 ml-2">
                 (フィルター: {{ getStatTitle(selectedStat) }})
@@ -154,66 +169,66 @@
             <button
               v-if="selectedStat"
               @click="clearStatFilter"
-              class="text-sm text-blue-600 hover:text-blue-900"
+              class="text-sm text-blue-600 hover:text-blue-500 transition-colors"
             >
               フィルターをクリア
             </button>
           </div>
         </div>
         
-        <div v-if="displayedReservations.length > 0" class="divide-y divide-gray-200">
+        <div v-if="displayedReservations.length > 0" class="divide-y divide-gray-200/50">
           <div
             v-for="reservation in displayedReservations"
             :key="reservation.id"
-            class="p-6 hover:bg-gray-50"
+            class="p-6 hover:bg-gray-50 transition-colors"
           >
             <div class="flex items-center justify-between">
               <div class="flex-1">
                 <div class="flex items-center space-x-3">
-                  <h3 class="text-lg font-medium text-gray-900">{{ reservation.customerName }}</h3>
+                  <h3 class="text-lg font-bold text-gray-900">{{ reservation.customerName }}</h3>
                   <span
                     :class="getStatusClass(reservation.status)"
-                    class="px-2 py-1 text-xs font-medium rounded-full"
+                    class="px-3 py-1 text-xs font-medium rounded-full shadow-sm"
                   >
                     {{ getStatusText(reservation.status) }}
                   </span>
                 </div>
-                <div class="mt-2 space-y-1">
+                <div class="mt-3 space-y-1">
                   <div class="flex items-center space-x-4 text-sm text-gray-600">
                     <span>📧 {{ reservation.customerEmail }}</span>
                     <span>📅 {{ formatDate(reservation.startTime) }}</span>
                     <span>🕐 {{ formatTime(reservation.startTime) }} - {{ formatTime(reservation.endTime) }}</span>
                   </div>
-                  <div class="text-sm text-gray-600">
+                  <div class="text-sm text-blue-600">
                     <span>🔧 {{ reservation.serviceName }}</span>
                   </div>
                 </div>
               </div>
-              <div class="flex items-center space-x-2">
+              <div class="flex items-center space-x-3">
                 <button
                   @click="viewReservation(reservation)"
-                  class="text-blue-600 hover:text-blue-900"
+                  class="px-4 py-2 text-blue-600 hover:text-blue-500 font-medium transition-colors"
                 >
                   詳細
                 </button>
                 <button
                   v-if="reservation.status === 'pending'"
                   @click="confirmReservation(reservation)"
-                  class="text-green-600 hover:text-green-900"
+                  class="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
                 >
                   承認
                 </button>
                 <button
                   v-if="reservation.status === 'pending'"
                   @click="rejectReservation(reservation)"
-                  class="text-red-600 hover:text-red-900"
+                  class="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
                 >
                   拒否
                 </button>
                 <button
                   v-if="reservation.status === 'confirmed'"
                   @click="cancelReservation(reservation)"
-                  class="text-red-600 hover:text-red-900"
+                  class="px-4 py-2 text-red-600 hover:text-red-500 font-medium transition-colors"
                 >
                   キャンセル
                 </button>
@@ -222,8 +237,9 @@
           </div>
         </div>
         
-        <div v-else class="p-6 text-center text-gray-500">
-          予約がありません。
+        <div v-else class="p-16 text-center">
+          <div class="text-gray-400 text-6xl mb-4">📅</div>
+          <p class="text-gray-500 text-lg">予約がありません</p>
         </div>
       </div>
     </div>
@@ -397,10 +413,10 @@ const totalCount = computed(() => {
 // ステータスのスタイル
 const getStatusClass = (status) => {
   switch (status) {
-    case 'pending': return 'bg-orange-100 text-orange-800'
-    case 'confirmed': return 'bg-green-100 text-green-800'
-    case 'cancelled': return 'bg-red-100 text-red-800'
-    default: return 'bg-gray-100 text-gray-800'
+    case 'pending': return 'bg-gradient-to-r from-orange-400 to-yellow-400 text-white'
+    case 'confirmed': return 'bg-gradient-to-r from-green-400 to-blue-400 text-white'
+    case 'cancelled': return 'bg-gradient-to-r from-red-400 to-pink-400 text-white'
+    default: return 'bg-gradient-to-r from-gray-400 to-gray-500 text-white'
   }
 }
 

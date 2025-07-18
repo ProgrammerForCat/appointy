@@ -1,24 +1,25 @@
 <template>
-  <div class="space-y-6">
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-gray-50 to-slate-100">
+    <div class="space-y-6">
       <!-- ヘッダー -->
-      <div class="bg-white shadow rounded-lg p-6">
+      <div class="bg-white backdrop-blur-sm border border-gray-300 rounded-2xl shadow-xl p-8">
         <div class="flex justify-between items-center">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">店舗設定</h1>
-            <p class="text-gray-600 mt-1">店舗情報と営業時間を管理できます</p>
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">店舗設定</h1>
+            <p class="text-gray-600 mt-3 text-lg">店舗情報と営業時間を管理できます</p>
           </div>
           <NuxtLink 
             to="/profile"
-            class="text-blue-600 hover:text-blue-900 text-sm"
+            class="text-blue-600 hover:text-blue-500 text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-50 transition-all duration-200"
           >
             個人設定はこちら
           </NuxtLink>
         </div>
       </div>
 
-      <!-- 店舗設定 -->
-      <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">店舗情報</h2>
+        <!-- 店舗設定 -->
+        <div class="bg-white backdrop-blur-sm border border-gray-300 rounded-2xl shadow-xl p-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">店舗情報</h2>
         
         <form @submit.prevent="saveProfile" class="space-y-6">
           <!-- 店舗画像 -->
@@ -47,7 +48,7 @@
                 <button
                   type="button"
                   @click="$refs.fileInput.click()"
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm"
+                  class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
                 >
                   画像を選択
                 </button>
@@ -55,7 +56,7 @@
                   v-if="profileImageUrl"
                   type="button"
                   @click="removeProfileImage"
-                  class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm"
+                  class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:shadow-lg hover:scale-105 transition-all duration-200"
                 >
                   画像を削除
                 </button>
@@ -70,7 +71,7 @@
               v-model="profileData.name"
               type="text"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-200"
               placeholder="店舗名を入力"
             >
           </div>
@@ -81,7 +82,7 @@
             <textarea
               v-model="profileData.description"
               rows="4"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-200"
               placeholder="店舗の説明を入力"
             ></textarea>
           </div>
@@ -93,22 +94,22 @@
           <button
             type="submit"
             :disabled="profileLoading"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md disabled:bg-gray-400"
+            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:from-gray-400 disabled:to-gray-400 disabled:scale-100"
           >
             {{ profileLoading ? '保存中...' : '店舗情報を保存' }}
           </button>
         </form>
-      </div>
+        </div>
 
-      <!-- 営業時間設定 -->
-      <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">営業時間設定</h2>
+        <!-- 営業時間設定 -->
+        <div class="bg-white backdrop-blur-sm border border-gray-300 rounded-2xl shadow-xl p-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">営業時間設定</h2>
         
         <form @submit.prevent="saveBusinessHours" class="space-y-4">
           <div
             v-for="(day, key) in businessHours"
             :key="key"
-            class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg"
+            class="flex items-center space-x-4 p-4 border border-gray-200 rounded-xl bg-gray-50/50 hover:bg-gray-100/50 transition-all duration-200"
           >
             <div class="w-20">
               <span class="font-medium text-gray-700">{{ getDayName(key) }}</span>
@@ -127,13 +128,13 @@
               <input
                 v-model="day.openTime"
                 type="time"
-                class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-200"
               >
               <span class="text-gray-500">〜</span>
               <input
                 v-model="day.closeTime"
                 type="time"
-                class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-200"
               >
             </div>
             
@@ -149,11 +150,12 @@
           <button
             type="submit"
             :disabled="hoursLoading"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md disabled:bg-gray-400"
+            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:from-gray-400 disabled:to-gray-400 disabled:scale-100"
           >
             {{ hoursLoading ? '保存中...' : '営業時間を保存' }}
           </button>
         </form>
+        </div>
       </div>
     </div>
 </template>

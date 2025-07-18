@@ -1,12 +1,13 @@
 <template>
-  <div class="space-y-6">
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 via-gray-50 to-slate-100">
+    <div class="space-y-6">
       <!-- ヘッダー -->
-      <div class="bg-white shadow rounded-lg p-6">
+      <div class="bg-white backdrop-blur-sm border border-gray-300 rounded-2xl shadow-xl p-8">
         <div class="flex justify-between items-center">
-          <h1 class="text-2xl font-bold text-gray-900">サービス管理</h1>
+          <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">サービス管理</h1>
           <button
             @click="showCreateModal = true"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center space-x-2"
+            class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center space-x-2 shadow-md"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -16,72 +17,86 @@
         </div>
       </div>
 
-      <!-- サービス一覧 -->
-      <div class="bg-white shadow rounded-lg">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-medium text-gray-900">サービス一覧</h2>
-        </div>
-        
-        <div v-if="services.length > 0" class="divide-y divide-gray-200">
-          <div
-            v-for="service in services"
-            :key="service.id"
-            class="p-6 hover:bg-gray-50"
-          >
-            <div class="flex items-center justify-between">
-              <div class="flex-1">
+        <!-- サービス一覧 -->
+        <div class="bg-white backdrop-blur-sm border border-gray-300 rounded-2xl shadow-xl">
+          <div class="px-8 py-6 border-b border-gray-200/50">
+            <h2 class="text-2xl font-bold text-gray-900">サービス一覧</h2>
+          </div>
+          
+          <div v-if="services.length > 0" class="divide-y divide-gray-200/50">
+            <div
+              v-for="service in services"
+              :key="service.id"
+              class="p-6 hover:bg-gray-50 transition-all duration-200"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-3">
+                    <h3 class="text-lg font-bold text-gray-900">{{ service.name }}</h3>
+                    <span class="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-blue-400 to-purple-400 text-white shadow-sm">
+                      {{ service.category || 'その他' }}
+                    </span>
+                    <span
+                      :class="service.isActive ? 'bg-gradient-to-r from-green-400 to-green-500 text-white' : 'bg-gradient-to-r from-red-400 to-red-500 text-white'"
+                      class="px-3 py-1 text-xs font-medium rounded-full shadow-sm"
+                    >
+                      {{ service.isActive ? '有効' : '無効' }}
+                    </span>
+                  </div>
+                  <div class="mt-3 flex items-center space-x-4 text-sm text-gray-600">
+                    <span class="flex items-center space-x-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>所要時間: {{ service.durationMinutes }}分</span>
+                    </span>
+                    <span class="flex items-center space-x-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                      <span>料金: ¥{{ service.price.toLocaleString() }}</span>
+                    </span>
+                  </div>
+                </div>
                 <div class="flex items-center space-x-3">
-                  <h3 class="text-lg font-medium text-gray-900">{{ service.name }}</h3>
-                  <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                    {{ service.category || 'その他' }}
-                  </span>
-                  <span
-                    :class="service.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                    class="px-2 py-1 text-xs font-medium rounded-full"
+                  <button
+                    @click="editService(service)"
+                    class="px-4 py-2 text-blue-600 hover:text-blue-500 font-medium transition-colors rounded-lg hover:bg-blue-50"
                   >
-                    {{ service.isActive ? '有効' : '無効' }}
-                  </span>
+                    編集
+                  </button>
+                  <button
+                    @click="toggleServiceStatus(service)"
+                    :class="service.isActive ? 'text-red-600 hover:text-red-500 hover:bg-red-50' : 'text-green-600 hover:text-green-500 hover:bg-green-50'"
+                    class="px-4 py-2 font-medium transition-colors rounded-lg"
+                  >
+                    {{ service.isActive ? '無効化' : '有効化' }}
+                  </button>
+                  <button
+                    @click="deleteService(service)"
+                    class="px-4 py-2 text-red-600 hover:text-red-500 font-medium transition-colors rounded-lg hover:bg-red-50"
+                  >
+                    削除
+                  </button>
                 </div>
-                <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                  <span>所要時間: {{ service.durationMinutes }}分</span>
-                  <span>料金: ¥{{ service.price.toLocaleString() }}</span>
-                </div>
-              </div>
-              <div class="flex items-center space-x-2">
-                <button
-                  @click="editService(service)"
-                  class="text-blue-600 hover:text-blue-900"
-                >
-                  編集
-                </button>
-                <button
-                  @click="toggleServiceStatus(service)"
-                  :class="service.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'"
-                >
-                  {{ service.isActive ? '無効化' : '有効化' }}
-                </button>
-                <button
-                  @click="deleteService(service)"
-                  class="text-red-600 hover:text-red-900"
-                >
-                  削除
-                </button>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div v-else class="p-6 text-center text-gray-500">
-          サービスがありません。新しいサービスを作成してください。
+          
+          <div v-else class="p-16 text-center">
+            <div class="text-gray-400 text-6xl mb-4">🔧</div>
+            <p class="text-gray-500 text-lg mb-2">サービスがありません</p>
+            <p class="text-gray-400 text-sm">新しいサービスを作成してください</p>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 作成・編集モーダル -->
     <div v-if="showCreateModal || showEditModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-2xl rounded-2xl bg-white">
         <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">
+          <h3 class="text-xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             {{ showCreateModal ? '新しいサービス' : 'サービス編集' }}
           </h3>
           
@@ -92,7 +107,7 @@
                 v-model="formData.name"
                 type="text"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-200"
                 placeholder="例: カウンセリング"
               >
             </div>
@@ -105,7 +120,7 @@
               <select
                 v-model="formData.category"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-200"
               >
                 <option value="">カテゴリを選択してください</option>
                 <option v-for="category in categories" :key="category" :value="category">
@@ -124,7 +139,7 @@
                 type="number"
                 min="1"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-200"
                 placeholder="60"
               >
             </div>
@@ -136,7 +151,7 @@
                 type="number"
                 min="0"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-200"
                 placeholder="5000"
               >
             </div>
@@ -158,14 +173,14 @@
               <button
                 type="submit"
                 :disabled="loading"
-                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md disabled:bg-gray-400"
+                class="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-3 px-4 rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:from-gray-400 disabled:to-gray-400 disabled:scale-100"
               >
                 {{ loading ? '保存中...' : '保存' }}
               </button>
               <button
                 type="button"
                 @click="closeModal"
-                class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md"
+                class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-4 rounded-xl font-medium transition-colors"
               >
                 キャンセル
               </button>
